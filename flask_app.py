@@ -11,6 +11,10 @@ messages = []
 # sqs = boto3.client('sqs', region_name='us-west-2')
 # queue_url = os.getenv('QUEUE_URL')
 
+@app.route('/')
+def index():
+    return '<h1>Welcome. You Need To Go To /receive.  </h1>'
+
 @app.route('/send', methods=['POST'])
 def send_message():
     print("Received request:", request.json)

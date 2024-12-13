@@ -56,7 +56,7 @@ def receive_message():
         messages.clear()
         return jsonify({
             'Messages': received_messages,
-            'Status': 'Message/s received and deleted from queue'}), 200
+            'Status': 'Messages received and deleted from queue'}), 200
 
         # message = messages[0]
         # message_body = message['Body']

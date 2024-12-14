@@ -12,7 +12,7 @@ resource "aws_instance" "genai_service" {
               yum install -y python3 git
               python3 -m ensurepip --upgrade
               python3 -m pip install --upgrade pip
-              python3 -m pip install flask requests
+              python3 -m pip install flask requests google-generativeai
 
               # Set environment variable in ~/.bashrc
               echo "export GENAI_SERVICE_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)" >> /home/ec2-user/.bashrc

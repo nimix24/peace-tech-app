@@ -72,7 +72,7 @@ def send_message():
         if save_response.status_code != 200:
             return jsonify({'error': 'Failed to save data to DynamoDB'}), 500
 
-        return jsonify({"Status": "Message sent successfully", "Response": response_message}), 200
+        return jsonify({"Status": "Message sent successfully and saved in DB", "Response": response_message}), 200
 
     except Exception as e:
         print("Error occurred:", str(e))

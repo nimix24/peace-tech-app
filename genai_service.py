@@ -22,7 +22,7 @@ model = genai.GenerativeModel("gemini-pro")
 # Supported languages
 LANGUAGES = ["english", "spanish", "hebrew"]
 
-@app.route('/generate-greeting', methods=['POST'])
+@app.route('/generate-greeting', methods=['GET'])
 def generate_greeting():
     try:
         logging.info("inside def generate_greeting")

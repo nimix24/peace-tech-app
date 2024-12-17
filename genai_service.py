@@ -1,8 +1,16 @@
 from flask import Flask, request, jsonify
 import google.generativeai as genai
 import logging
+import sys
 
-logging.basicConfig(filename='genai_service.log', level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/home/ec2-user/app/genai_service.log'),
+        logging.StreamHandler(sys.stdout)  # Output to console
+    ]
+)
 
 app = Flask(__name__)
 

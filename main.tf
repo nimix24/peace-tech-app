@@ -15,6 +15,9 @@ resource "aws_instance" "genai_service" {
               python3 -m pip install flask requests google-generativeai
 
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
+              touch /home/ec2-user/app/genai_service.log
+              chmod 666 /home/ec2-user/app/genai_service.log
+              echo "Log file created and permissions set at $(date)" >> /home/ec2-user/app/genai_service.log
               nohup python3 /home/ec2-user/app/genai_service.py > /home/ec2-user/genai_service.log 2>&1 &
               EOF
 

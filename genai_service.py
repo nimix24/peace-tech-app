@@ -1,15 +1,10 @@
 from flask import Flask, request, jsonify
 import google.generativeai as genai
 import logging
-import os
 
 logging.basicConfig(filename='genai_service.log', level=logging.INFO)
 
 app = Flask(__name__)
-log_file_path = '/home/ec2-user/python_log.log'
-
-# Ensure the directory exists (optional, if directory creation is needed)
-os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
 # Configure Google Generative AI
 GOOGLE_API_KEY = 'AIzaSyCcvJfXqCg3ATYTW_aC9c5VdW8zD8C_thM'

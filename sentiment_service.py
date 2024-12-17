@@ -17,6 +17,7 @@ def analyze_sentiment():
     try:
         # Extract text from request
         text = request.json.get('text', '')
+        print ("text inside analyze-sentiment" + text)
         if not text:
             return jsonify({'error': 'Text is required'}), 400
 
@@ -25,8 +26,10 @@ def analyze_sentiment():
          #   return {"sentiment": "Positive", "score": 0.95}
 
         # Analyze sentiment
-        sentiment = evaluate_sentiment(text)
-
+        #sentiment = evaluate_sentiment(text)
+        sentiment = {"score": 0.95}
+        print ("sentiment is: " , sentiment)
+        print ("jsonify(sentiment) --> ", jsonify(sentiment))
         return jsonify(sentiment), 200
 
     except Exception as e:

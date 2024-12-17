@@ -14,9 +14,6 @@ resource "aws_instance" "genai_service" {
               python3 -m pip install --upgrade pip
               python3 -m pip install flask requests google-generativeai
 
-              # Set environment variable in ~/.bashrc
-              echo "export GENAI_SERVICE_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)" >> /home/ec2-user/.bashrc
-
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               nohup python3 /home/ec2-user/app/genai_service.py > /home/ec2-user/genai_service.log 2>&1 &
               EOF
@@ -44,9 +41,6 @@ resource "aws_instance" "sentiment_service" {
               python3 -m pip install --upgrade pip
               python3 -m pip install flask
 
-              # Set SENTIMENT_SERVICE_IP in ~/.bashrc
-              echo "export SENTIMENT_SERVICE_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)" >> /home/ec2-user/.bashrc
-
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               nohup python3 /home/ec2-user/app/sentiment_service.py > /home/ec2-user/sentiment_service.log 2>&1 &
               EOF
@@ -71,9 +65,6 @@ resource "aws_instance" "db_instance" {
               python3 -m ensurepip --upgrade
               python3 -m pip install --upgrade pip
               python3 -m pip install boto3
-
-              # Set DYNAMODB_SERVICE_IP in ~/.bashrc
-              echo "export DYNAMODB_SERVICE_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)" >> /home/ec2-user/.bashrc
 
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               #sudo chmod 666 /home/ec2-user/app.log
@@ -108,6 +99,18 @@ resource "aws_instance" "flask_ec2" {
               python3 -m ensurepip --upgrade
               python3 -m pip install --upgrade pip
               python3 -m pip install flask boto3
+
+              # Set environment variable for GENAI_SERVICE_IP
+              echo "export GENAI_SERVICE_IP=${aws_instance.genai_service.public_ip}" >> /home/ec2-user/.bashrc
+
+              # Set environment variable for DYNAMODB_SERVICE_IP
+              echo "export DYNAMODB_SERVICE_IP=${aws_instance.db_instance.public_ip}" >> /home/ec2-user/.bashrc
+
+              # Set environment variable for SENTIMENT_SERVICE_IP
+              # Export the SENTIMENT_SERVICE_IP directly from Terraform
+              echo "export SENTIMENT_SERVICE_IP=${aws_instance.sentiment_service.public_ip}" >> /home/ec2-user/.bashrc
+
+              source /home/ec2-user/.bashrc
 
               # Clone the Flask app from GitHub
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
@@ -208,6 +211,7 @@ resource "aws_dynamodb_table" "greetings" {
   }
 
   tags = {
+    Name = "greetings_table"
     Environment = "Test"
   }
 }

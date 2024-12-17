@@ -3,6 +3,8 @@ import google.generativeai as genai
 import logging
 import sys
 
+app = Flask(__name__)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -12,8 +14,6 @@ logging.basicConfig(
     ]
 )
 
-app = Flask(__name__)
-
 # Configure Google Generative AI
 GOOGLE_API_KEY = 'AIzaSyCcvJfXqCg3ATYTW_aC9c5VdW8zD8C_thM'
 genai.configure(api_key=GOOGLE_API_KEY)
@@ -22,7 +22,7 @@ model = genai.GenerativeModel("gemini-pro")
 # Supported languages
 LANGUAGES = ["english", "spanish", "hebrew"]
 
-@app.route('/generate-greeting', methods=['GET'])
+@app.route('/generate-greeting', methods=['POST'])
 def generate_greeting():
     try:
         logging.info("inside def generate_greeting")

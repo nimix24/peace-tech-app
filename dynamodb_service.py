@@ -4,6 +4,8 @@ import boto3
 import logging
 import sys
 
+app = Flask(__name__)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -12,8 +14,6 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)  # Output to console
     ]
 )
-
-app = Flask(__name__)
 
 # Initialize DynamoDB client
 dynamodb = boto3.resource('dynamodb', region_name='us-west-2')

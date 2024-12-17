@@ -70,7 +70,8 @@ resource "aws_instance" "db_instance" {
               python3 -m pip install flask boto3
 
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
-              #sudo chmod 666 /home/ec2-user/app.log
+              touch /home/ec2-user/app/dynamo_python.log
+              chmod 666 /home/ec2-user/app/dynamo_python.log
               #EOF_APP
 
               # Run dynamodb app
@@ -155,13 +156,6 @@ resource "aws_security_group" "flask_sg" {
   }
 
   ingress {
-    from_port   = 5002
-    to_port     = 5002
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     from_port   = 5003
     to_port     = 5003
     protocol    = "tcp"
@@ -199,6 +193,13 @@ resource "aws_security_group" "db_instance_sg" {
   description = "Allow access from data-logic-instance only"
 
   # Allow traffic from the data-logic-instance security group
+  ingress {
+    from_port   = 5002
+    to_port     = 5002
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
     from_port       = 8000
     to_port         = 8000

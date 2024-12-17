@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 
 # Configure Google Generative AI
-GOOGLE_API_KEY = 'AIzaSyCcvJfXqCg3ATYTW_aC9c5VdW8zD8C_thM'
+GOOGLE_API_KEY = ''
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
 

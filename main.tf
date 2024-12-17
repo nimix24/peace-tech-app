@@ -67,7 +67,7 @@ resource "aws_instance" "db_instance" {
               yum install -y python3 git
               python3 -m ensurepip --upgrade
               python3 -m pip install --upgrade pip
-              python3 -m pip install boto3
+              python3 -m pip install flask boto3
 
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               #sudo chmod 666 /home/ec2-user/app.log

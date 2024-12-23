@@ -42,7 +42,10 @@ resource "aws_instance" "sentiment_service" {
               yum install -y python3 git
               python3 -m ensurepip --upgrade
               python3 -m pip install --upgrade pip
-              python3 -m pip install flask
+              python3 -m pip install flask nltk
+              python3 -m nltk.downloader vader_lexicon
+              pip3 show nltk
+              ls -l ~/.nltk_data
 
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               nohup python3 /home/ec2-user/app/sentiment_service.py > /home/ec2-user/sentiment_service.log 2>&1 &

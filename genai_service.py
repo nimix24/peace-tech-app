@@ -10,12 +10,13 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('/home/ec2-user/app/genai_service.log'),
+        #logging.FileHandler(r"G:\logs"),
         logging.StreamHandler(sys.stdout)  # Output to console
     ]
 )
 
 # Configure Google Generative AI
-GOOGLE_API_KEY = ''
+GOOGLE_API_KEY = 'AIzaSyCcvJfXqCg3ATYTW_aC9c5VdW8zD8C_thM'
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
 

@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 import boto3
 import logging
 import sys
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -11,6 +12,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('/home/ec2-user/app/dynamo_python.log'),
+        #logging.FileHandler(r"G:\logs"),
         logging.StreamHandler(sys.stdout)  # Output to console
     ]
 )
@@ -24,22 +26,27 @@ def save_message():
     try:
         # Extract data from request
         data = request.json
+        print("INSIDE /save-message. data = request.json is -> ", data)
         logging.info ("data = request.json coming from flask_app --> ", data)
         if not data:
             return jsonify({'error': 'No data provided'}), 400
 
         logging.info ("BEFORE table.put_item(Item={")
         logging.info ("'id': str(hash(data['greeting'])) -->", str(hash(data['greeting'])))
-        logging.info("data['greeting'] --> " ,data['greeting'])
-        logging.info("data['language'] --> ", data['language'])
-        logging.info("sentiment_score", data['sentiment']['score'])
+        logging.info("data['greeting']  -->" ,data['greeting'])
+        logging.info("data['language']  -->", data['language'])
+        logging.info("data['sentiment'] -->", data['sentiment'])
+
+        # Get the current date and time
+        current_datetime = datetime.now().isoformat()  # ISO 8601 format
+
         # Save to DynamoDB
         table.put_item(Item={
             'id': str(hash(data['greeting'])),  # Use hash for unique ID
             'greeting': data['greeting'],
             'language': data['language'],
-            #'sentiment': data['sentiment']['sentiment']
-            'sentiment_score': Decimal(str(data['sentiment']['score']))
+            'sentiment': Decimal(str(data['sentiment'])),
+            'date': current_datetime
         })
         logging.info ("AFTER table.put_item(Item={")
         logging.info ("jsonify({'Status': 'Data saved successfully'})  ->", jsonify({'Status': 'Data saved successfully'}))

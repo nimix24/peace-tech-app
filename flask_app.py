@@ -73,7 +73,6 @@ def send_message():
         print ("sentiment is: " , sentiment)
 
         # Prepare the data to save in DynamoDB
-
         response_message = {
             "greeting": greeting,
             "language": language,

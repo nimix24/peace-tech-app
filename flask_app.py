@@ -30,6 +30,7 @@ def send_message():
     try:
         # Extract message from request
         language = request.json.get('language', 'english').lower()
+        print("language is: ", language)
 
         if not language:
             return jsonify({'error': 'Language is required'}), 400
@@ -45,6 +46,7 @@ def send_message():
 
         # Call GenAI Service to generate a greeting
         try:
+            print("LINE 49 - Calling genai_response")
             genai_response = requests.post(GENAI_SERVICE_URL, json={"language": language})
             print ("genai_response is:" + genai_response.text)
             if genai_response.status_code != 200:
@@ -84,6 +86,10 @@ def send_message():
         print ("about to save --> ", response_message)
         save_response = requests.post(DYNAMODB_SERVICE_URL, json=response_message)
         print ("save_response.status_code", save_response.status_code)
+
+        if save_response.status_code == 404:
+            return jsonify({'error': "The table doesn't exist. Please create the table and try again."}), 404
+
         if save_response.status_code != 200:
             return jsonify({'error': 'Failed to save data to DynamoDB'}), 500
 

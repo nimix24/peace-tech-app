@@ -1,5 +1,13 @@
-provider "aws" {
+data "external" "secret_fetcher" {
+  program = ["python", "scripts/fetch_secret.py"]
 }
+
+provider "aws" {
+  region     = "us-west-2"
+  access_key = data.external.secret_fetcher.result["AWS_ACCESS_KEY_ID"]
+  secret_key = data.external.secret_fetcher.result["AWS_SECRET_ACCESS_KEY"]
+}
+
 resource "aws_instance" "genai_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
@@ -12,7 +20,7 @@ resource "aws_instance" "genai_service" {
               yum install -y python3 git
               python3 -m ensurepip --upgrade
               python3 -m pip install --upgrade pip
-              python3 -m pip install flask requests google-generativeai
+              python3 -m pip install flask boto3 requests google-generativeai
 
               git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               touch /home/ec2-user/app/genai_service.log

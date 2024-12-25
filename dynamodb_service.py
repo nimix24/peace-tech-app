@@ -4,6 +4,7 @@ import boto3
 import logging
 import sys
 from datetime import datetime
+from botocore.exceptions import ClientError
 
 app = Flask(__name__)
 
@@ -19,7 +20,13 @@ logging.basicConfig(
 
 # Initialize DynamoDB client
 dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
-table = dynamodb.Table('greetings_table')
+table_name = 'greetings_table'
+
+try:
+    table = dynamodb.Table(table_name)
+except ClientError as e:
+    logging.error(f"Error initializing DynamoDB table: {e}")
+    table = None  # Handle this appropriately if table can't be initialized
 
 @app.route('/save-message', methods=['POST'])
 def save_message():
@@ -41,6 +48,7 @@ def save_message():
         current_datetime = datetime.now().isoformat()  # ISO 8601 format
 
         # Save to DynamoDB
+        print("BEFORE table.put_item ")
         table.put_item(Item={
             'id': str(hash(data['greeting'])),  # Use hash for unique ID
             'greeting': data['greeting'],
@@ -52,8 +60,20 @@ def save_message():
         logging.info ("jsonify({'Status': 'Data saved successfully'})  ->", jsonify({'Status': 'Data saved successfully'}))
         return jsonify({'Status': 'Data saved successfully'}), 200
 
+    except ClientError as e:
+        # Handle DynamoDB-specific errors
+        error_code = e.response['Error']['Code']
+        if error_code == 'ResourceNotFoundException':
+            logging.error(f"DynamoDB table '{table_name}' does not exist: {e}")
+            return jsonify(
+                {'error': f"Table '{table_name}' does not exist. Please create the table and try again."}), 404
+        else:
+            logging.error(f"Unexpected error interacting with DynamoDB: {e}")
+            return jsonify({'error': 'Unexpected error interacting with DynamoDB'}), 500
+
     except Exception as e:
         logging.info ("INSIDE Exception")
+        logging.error(f"Unexpected server error: {e}")
         return jsonify({'error': str(e)}), 500
 
 # Run the Flask app

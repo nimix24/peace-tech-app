@@ -1,9 +1,20 @@
 from flask import Flask, request, jsonify
 import google.generativeai as genai
+import boto3
+import json
 import logging
 import sys
 
 app = Flask(__name__)
+
+def get_secret(secret_name):
+    client = boto3.client('secretsmanager', region_name='us-west-2')
+    response = client.get_secret_value(SecretId=secret_name)
+    secret = json.loads(response['SecretString'])
+    return secret.get('GOOGLE_API_KEY')
+
+google_api_key = get_secret("google_api_key")
+#print(f"Using API Key: {google_api_key}")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -16,7 +27,8 @@ logging.basicConfig(
 )
 
 # Configure Google Generative AI
-GOOGLE_API_KEY = ''
+GOOGLE_API_KEY = google_api_key
+#print(f"Using API Key: {GOOGLE_API_KEY}")
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
 

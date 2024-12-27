@@ -11,6 +11,7 @@ on:
         options:
           - plan
           - apply
+          - destroy
 
 permissions: # Workflow-level permissions
   contents: write

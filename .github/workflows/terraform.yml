@@ -27,22 +27,26 @@ jobs:
           role-to-assume: arn:aws:iam::266735837076:role/githubactions_aws_credentials_role
           aws-region: us-west-2
 
-      # Step 3: Install Terraform
+      # Step 3: verify credentials are loaded correctly
+      - name: Test AWS Access
+        run: aws sts get-caller-identity
+
+      # Step 4: Install Terraform
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
 
-      # Step 4: Terraform Init
+      # Step 5: Terraform Init
       - name: Terraform Init
         run: terraform init
 
-      # Step 5: Dry Run (Terraform Plan)
+      # Step 6: Dry Run (Terraform Plan)
       - name: Terraform Plan
         if: ${{ github.event.inputs.mode == 'plan' }}
         run: terraform plan
 
-      # Step 6: Apply Changes
+      # Step 7: Apply Changes
       - name: Terraform Apply
         if: ${{ github.event.inputs.mode == 'apply' }}
         run: terraform apply -auto-approve

@@ -12,6 +12,10 @@ on:
           - plan
           - apply
           - destroy
+      resources:
+        description: aws_instance.genai_service, aws_instance.flask_ec2
+        required: false
+        default: ''
 
 permissions: # Workflow-level permissions
   contents: write
@@ -72,3 +76,13 @@ jobs:
       - name: Terraform Apply
         if: ${{ github.event.inputs.mode == 'apply' }}
         run: terraform apply -auto-approve
+
+      # Step 10: Destroy Changes
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.mode == 'destroy' }}
+        run: |
+          if [ "${{ github.event.inputs.resources }}" != "" ]; then
+            terraform destroy -target=${{ github.event.inputs.resources }} -auto-approve
+          else
+            terraform destroy -auto-approve
+          fi

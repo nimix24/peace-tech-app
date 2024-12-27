@@ -20,33 +20,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Configure AWS credentials using OIDC
+      # Step 2: install AWS CLI in the workflow
+      - name: Install AWS CLI
+        run: sudo apt-get update && sudo apt-get install -y awscli
+
+      # Step 3: Configure AWS credentials using OIDC
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::266735837076:role/githubactions_aws_credentials_role
           aws-region: us-west-2
 
-      # Step 3: verify credentials are loaded correctly
+      # Step 4: verify credentials are loaded correctly
       - name: Test AWS Access
         run: aws sts get-caller-identity
 
-      # Step 4: Install Terraform
+      # Step 5: Install Terraform
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.0
 
-      # Step 5: Terraform Init
+      # Step 6: Terraform Init
       - name: Terraform Init
         run: terraform init
 
-      # Step 6: Dry Run (Terraform Plan)
+      # Step 7: Dry Run (Terraform Plan)
       - name: Terraform Plan
         if: ${{ github.event.inputs.mode == 'plan' }}
         run: terraform plan
 
-      # Step 7: Apply Changes
+      # Step 8: Apply Changes
       - name: Terraform Apply
         if: ${{ github.event.inputs.mode == 'apply' }}
         run: terraform apply -auto-approve

@@ -12,6 +12,7 @@ resource "aws_instance" "genai_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   vpc_security_group_ids = [aws_security_group.flask_sg.id]
+  iam_instance_profile = "access_secret_manager_role"
   key_name = "vockey"
 
   user_data = <<-EOF

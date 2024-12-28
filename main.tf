@@ -226,7 +226,9 @@ resource "aws_security_group" "db_instance_sg" {
     from_port       = 8000
     to_port         = 8000
     protocol        = "tcp"
-    security_groups = aws_security_group.flask_sg.count > 0 ? [aws_security_group.flask_sg[0].id] : []
+    security_groups = data.aws_security_group.existing_flask_sg.id != "" ?
+    [data.aws_security_group.existing_flask_sg.id] :
+    (length(aws_security_group.flask_sg) > 0 ? [aws_security_group.flask_sg[0].id] : [])
 
   }
 

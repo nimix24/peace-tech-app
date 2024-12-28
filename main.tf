@@ -221,8 +221,18 @@ resource "aws_security_group" "flask_sg" {
   }
 }
 
+# Query for the existing security group
+data "aws_security_group" "existing_db_instance_sg" {
+  filter {
+    name   = "group-name"
+    values = ["db_instance_sg"]
+  }
+}
+
 # Security group for DB Instance
 resource "aws_security_group" "db_instance_sg" {
+  count = data.aws_security_group.existing_db_instance_sg.id != "" ? 0 : 1
+
   name        = "db_instance_sg"
   description = "Allow access from data-logic-instance only"
 
@@ -285,6 +295,13 @@ output "flask_sg_id" {
   value = coalesce(
     try(data.aws_security_group.existing_flask_sg.id, null),
     try(aws_security_group.flask_sg[0].id, null)
+  )
+}
+
+output "db_instance_sg_id" {
+  value = coalesce(
+    try(data.aws_security_group.existing_db_instance_sg.id, null),
+    try(aws_security_group.db_instance_sg[0].id, null)
   )
 }
 

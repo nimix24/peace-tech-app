@@ -111,7 +111,11 @@ resource "aws_instance" "db_instance" {
 resource "aws_instance" "flask_ec2" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.flask_sg.id]
+  vpc_security_group_ids = (
+      data.aws_security_group.existing_flask_sg.id != "" ?
+      [data.aws_security_group.existing_flask_sg.id] :
+      (length(aws_security_group.flask_sg) > 0 ? [aws_security_group.flask_sg[0].id] : [])
+)
   key_name = "vockey"
 
   # User data script to initialize EC2 instance and Pass environment variables for Flask to access the SQS queue

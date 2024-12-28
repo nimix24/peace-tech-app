@@ -338,6 +338,6 @@ output "instance_names" {
   value = {
     data_logic_instance = aws_instance.flask_ec2.tags["Name"]
     db_instance = aws_instance.db_instance.tags["Name"]
-    dynamodb_table_name = aws_dynamodb_table.greetings.tags["Name"]
+    dynamodb_table_name = length(aws_dynamodb_table.greetings) > 0 ? aws_dynamodb_table.greetings[0].tags["Name"] : null
   }
 }

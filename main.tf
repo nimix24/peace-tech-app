@@ -78,7 +78,9 @@ resource "aws_instance" "db_instance" {
   ami = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
-  vpc_security_group_ids = [aws_security_group.db_instance_sg.id]
+  vpc_security_group_ids = data.aws_security_group.existing_db_instance_sg.id != "" ?
+  [data.aws_security_group.existing_db_instance_sg.id] :
+  (length(aws_security_group.db_instance_sg) > 0 ? [aws_security_group.db_instance_sg[0].id] : [])
   iam_instance_profile = "db-instance-dynamo-role"
 
   user_data = <<-EOF

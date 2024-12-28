@@ -279,8 +279,13 @@ resource "aws_security_group" "db_instance_sg" {
   }
 }
 
+data "aws_dynamodb_table" "existing_greetings_table" {
+  name = "greetings_table"
+}
+
 # Create a DynamoDB Table
 resource "aws_dynamodb_table" "greetings" {
+  count          = length(data.aws_dynamodb_table.existing_greetings_table.id) > 0 ? 0 : 1
   name           = "greetings_table"
   billing_mode   = "PAY_PER_REQUEST" # Automatically scales based on usage
   hash_key       = "id"
@@ -297,6 +302,13 @@ resource "aws_dynamodb_table" "greetings" {
 }
 
 # ------------------------------------------------------- OUTPUTS ---------------------------------------------------
+
+output "greetings_table_name" {
+  value = coalesce(
+    try(data.aws_dynamodb_table.existing_greetings_table.name, null),
+    try(aws_dynamodb_table.greetings[0].name, null)
+  )
+}
 
 output "flask_sg_id" {
   value = coalesce(

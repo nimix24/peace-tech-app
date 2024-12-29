@@ -20,6 +20,7 @@ permissions: # Workflow-level permissions
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    name: Run Terraform in ${{ github.event.inputs.mode }} mode
 
     env:
       ACTIONS_STEP_DEBUG: true

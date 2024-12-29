@@ -1,9 +1,4 @@
-data "external" "secret_fetcher" {
-  program = ["python", "scripts/fetch_secret.py"]
-}
-
 provider "aws" {
-
 }
 
 resource "aws_instance" "genai_service" {

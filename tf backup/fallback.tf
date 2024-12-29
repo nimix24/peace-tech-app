@@ -3,7 +3,9 @@ data "external" "secret_fetcher" {
 }
 
 provider "aws" {
-
+  region     = "us-west-2"
+  access_key = data.external.secret_fetcher.result["AWS_ACCESS_KEY_ID"]
+  secret_key = data.external.secret_fetcher.result["AWS_SECRET_ACCESS_KEY"]
 }
 
 resource "aws_instance" "genai_service" {

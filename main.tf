@@ -321,6 +321,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "terraform-state-bucket" # Replace with a unique bucket name
   force_destroy = true # Optional: Allows destroying the bucket even if it contains objects
+  provider = aws
 
   tags = {
     Name        = "TerraformStateBucket"

@@ -48,7 +48,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::266735837076:role/githubactions_aws_credentials_role
-          aws-region: us-west-2
+          aws-region: us-east-1
 
       - name: Check if Bucket Exists
         id: bucket-exists

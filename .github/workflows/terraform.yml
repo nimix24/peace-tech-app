@@ -50,6 +50,18 @@ jobs:
           role-to-assume: arn:aws:iam::266735837076:role/githubactions_aws_credentials_role
           aws-region: us-west-2
 
+      # Step 33: Check S3 Bucket Region
+      - name: Get S3 Bucket Region
+        id: bucket-region
+        run: |
+          region=$(aws s3api get-bucket-location --bucket terraform-state-bucket --query 'LocationConstraint' --output text)
+          echo "Bucket region: $region"
+          if [[ "$region" == "None" ]]; then
+            region="us-east-1" # Handle AWS returning 'None' for us-east-1
+          fi
+          echo "::set-output name=region::$region"
+        shell: bash
+
       # Step 5: verify credentials are loaded correctly
       - name: Test AWS Access
         run: aws sts get-caller-identity

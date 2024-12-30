@@ -296,9 +296,14 @@ resource "aws_dynamodb_table" "greetings" {
   }
 }
 
+data "aws_dynamodb_table" "existing_terraformlocks_table" {
+  name = "terraformlocks_table"
+}
+
 # DynamoDB Table for State Locking
 resource "aws_dynamodb_table" "terraform_locks" {
-  name         = "terraformlocks_table" # Replace with your table name
+  count        = length(data.aws_dynamodb_table.existing_terraformlocks_table.id) > 0 ? 0 : 1
+  name         = "terraformlocks_table"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
@@ -319,6 +324,13 @@ output "greetings_table_name" {
   value = coalesce(
     try(data.aws_dynamodb_table.existing_greetings_table.name, null),
     try(aws_dynamodb_table.greetings[0].name, null)
+  )
+}
+
+output "terraformlocks_table_name" {
+  value = coalesce(
+    try(data.aws_dynamodb_table.existing_terraformlocks_table.name, null),
+    try(aws_dynamodb_table.terraform_locks[0].name, null)
   )
 }
 

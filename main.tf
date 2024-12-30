@@ -1,6 +1,8 @@
 provider "aws" {
 }
 
+
+
 resource "aws_instance" "genai_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
@@ -276,7 +278,7 @@ data "aws_dynamodb_table" "existing_greetings_table" {
   name = "greetings_table"
 }
 
-# Create a DynamoDB Table
+# DynamoDB Table for storing greetings
 resource "aws_dynamodb_table" "greetings" {
   count          = length(data.aws_dynamodb_table.existing_greetings_table.id) > 0 ? 0 : 1
   name           = "greetings_table"
@@ -290,6 +292,23 @@ resource "aws_dynamodb_table" "greetings" {
 
   tags = {
     Name = "greetings_table"
+    Environment = "Test"
+  }
+}
+
+# DynamoDB Table for State Locking
+resource "aws_dynamodb_table" "terraform_locks" {
+  name         = "my-terraform-locks" # Replace with your table name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+
+  tags = {
+    Name        = "terraformLocks_table"
     Environment = "Test"
   }
 }

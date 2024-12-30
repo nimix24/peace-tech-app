@@ -318,6 +318,59 @@ resource "aws_dynamodb_table" "terraform_locks" {
   }
 }
 
+# S3 Bucket for Terraform State
+resource "aws_s3_bucket" "terraform_state" {
+  bucket = "terraform-state-bucket" # Replace with a unique bucket name
+  force_destroy = true # Optional: Allows destroying the bucket even if it contains objects
+
+  tags = {
+    Name        = "TerraformStateBucket"
+    Environment = "Production"
+  }
+}
+
+# Enable Versioning
+resource "aws_s3_bucket_versioning" "versioning" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# Lifecycle Rules for Object Management
+resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  rule {
+    id     = "ExpireNonCurrentVersions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30 # Automatically delete noncurrent object versions after 30 days
+    }
+  }
+
+  rule {
+    id     = "AbortIncompleteMultipartUpload"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7 # Abort incomplete uploads after 7 days
+    }
+  }
+}
+
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-bucket"
+    key            = "terraform.tfstate"        # Path to the state file in the bucket
+    region         = "us-west-2"
+    dynamodb_table = "terraformlocks_table"
+    encrypt        = true                       # Enable server-side encryption
+  }
+}
+
 # ------------------------------------------------------- OUTPUTS ---------------------------------------------------
 
 output "greetings_table_name" {

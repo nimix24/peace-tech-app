@@ -1,7 +1,6 @@
 provider "aws" {
+  region = "us-west-2"
 }
-
-
 
 resource "aws_instance" "genai_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI

@@ -53,7 +53,7 @@ jobs:
       - name: Check if Bucket Exists
         id: bucket-exists
         run: |
-          bucket_exists=$(aws s3api head-bucket --bucket terraform-state-bucket 2>&1 || true)
+          bucket_exists=$(aws s3api head-bucket --bucket nimrod-terraform-state-bucket 2>&1 || true)
           if [[ "$bucket_exists" == *"Not Found"* || "$bucket_exists" == *"Forbidden"* ]]; then
             echo "::set-output name=exists::false"
           else
@@ -66,7 +66,7 @@ jobs:
         if: steps.bucket-exists.outputs.exists == 'true'
         id: bucket-region
         run: |
-          region=$(aws s3api get-bucket-location --bucket terraform-state-bucket --query 'LocationConstraint' --output text)
+          region=$(aws s3api get-bucket-location --bucket nimrod-terraform-state-bucket --query 'LocationConstraint' --output text)
           echo "Bucket region: $region"
           if [[ "$region" == "None" ]]; then
             region="us-east-1" # Handle AWS returning 'None' for us-east-1

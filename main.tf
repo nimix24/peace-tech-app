@@ -1,5 +1,4 @@
 provider "aws" {
-  region = "us-west-2"
 }
 
 resource "aws_instance" "genai_service" {
@@ -365,7 +364,7 @@ terraform {
   backend "s3" {
     bucket         = "terraform-state-bucket"
     key            = "terraform.tfstate"        # Path to the state file in the bucket
-    region         = "us-west-2"
+    region         = "us-east-1"
     dynamodb_table = "terraformlocks_table"
     encrypt        = true                       # Enable server-side encryption
   }

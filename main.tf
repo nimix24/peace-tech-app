@@ -318,7 +318,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
 
 # S3 Bucket for Terraform State
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "nimrod-terraform-state-bucket" # Replace with a unique bucket name
+  bucket = "nimrod-terraform-state-bucket-" # Replace with a unique bucket name
   force_destroy = true # Optional: Allows destroying the bucket even if it contains objects
   provider = aws
 
@@ -362,7 +362,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
 
 terraform {
   backend "s3" {
-    bucket         = "terraform-state-bucket"
+    bucket         = "nimrod-terraform-state-bucket"
     key            = "terraform.tfstate"        # Path to the state file in the bucket
     region         = "us-east-1"
     dynamodb_table = "terraformlocks_table"

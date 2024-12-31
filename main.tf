@@ -1,6 +1,15 @@
 provider "aws" {
 }
 
+module "dynamodb" {
+  source                      = "./modules/dynamodb"
+  greetings_table_name        = "greetings_table"
+  terraform_locks_table_name  = "terraform_locks_table"
+  tags = {
+    Environment = "Test"
+  }
+}
+
 resource "aws_instance" "genai_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
@@ -34,6 +43,7 @@ resource "aws_instance" "genai_service" {
   lifecycle {
     create_before_destroy = true
   }
+  depends_on = [module.dynamodb]
 }
 
 resource "aws_instance" "sentiment_service" {
@@ -64,6 +74,7 @@ resource "aws_instance" "sentiment_service" {
   tags = {
     Name = "sentiment-service-instance"
   }
+  depends_on = [module.dynamodb]
 }
 
 # EC2 instance for DB access
@@ -105,6 +116,7 @@ resource "aws_instance" "db_instance" {
   lifecycle {
     create_before_destroy = true
   }
+  depends_on = [module.dynamodb]
 }
 
 # EC2 instance to run Flask
@@ -156,6 +168,7 @@ resource "aws_instance" "flask_ec2" {
   lifecycle {
     create_before_destroy = true
   }
+  depends_on = [module.dynamodb]
 
 }
 
@@ -170,7 +183,6 @@ data "aws_security_group" "existing_flask_sg" {
 # Security group to allow inbound traffic to Flask. Use the existing security group if it exists
 resource "aws_security_group" "flask_sg" {
   count = data.aws_security_group.existing_flask_sg.id != "" ? 0 : 1
-
   name        = "flask_sg"
   description = "Allow SSH, Flask, and DynamoDB Local"
 
@@ -272,14 +284,6 @@ resource "aws_security_group" "db_instance_sg" {
   }
 }
 
-module "dynamodb" {
-  source                      = "./modules/dynamodb"
-  greetings_table_name        = "greetings_table"
-  terraform_locks_table_name  = "terraform_locks_table"
-  tags = {
-    Environment = "Test"
-  }
-}
 
 
 

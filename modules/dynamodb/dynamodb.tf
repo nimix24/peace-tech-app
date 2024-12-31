@@ -17,6 +17,7 @@ resource "aws_dynamodb_table" "greetings" {
     var.tags,
     { Name = var.greetings_table_name }
   )
+
 }
 
 data "aws_dynamodb_table" "existing_terraformlocks_table" {

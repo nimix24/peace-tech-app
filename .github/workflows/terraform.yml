@@ -86,7 +86,11 @@ jobs:
 
       # Step 7: Terraform Init
       - name: Terraform Init
-        run: terraform init -backend-config="region=us-west-2"
+        run: terraform init \
+          -backend-config="bucket=terraform-state-bucket-266735837076" \
+          -backend-config="key=terraform.tfstate" \
+          -backend-config="region=us-west-2" \
+          -backend-config="dynamodb_table=terraform_locks_table"
 
       # Step 8: Dry Run (Terraform Plan)
       - name: Terraform Plan

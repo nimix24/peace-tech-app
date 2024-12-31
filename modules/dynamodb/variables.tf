@@ -7,7 +7,7 @@ variable "greetings_table_name" {
 variable "terraform_locks_table_name" {
   description = "The name of the DynamoDB table for state locking"
   type        = string
-  default     = "terraformlocks_table"
+  default     = "terraform_locks_table"
 }
 
 variable "tags" {

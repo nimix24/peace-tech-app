@@ -5,9 +5,19 @@ provider "aws" {
 module "dynamodb" {
   source                      = "./modules/dynamodb"
   greetings_table_name        = "greetings_table"
-  terraform_locks_table_name  = "terraformlocks_table"
+  terraform_locks_table_name  = module.dynamodb.terraform_locks_table_arn
   tags = {
     Environment = "Test"
+  }
+}
+
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-bucket-266735837076"
+    key            = "terraform.tfstate"
+    region         = "us-west-2"
+    dynamodb_table = terraform_locks_table_name
+    encrypt        = true
   }
 }
 

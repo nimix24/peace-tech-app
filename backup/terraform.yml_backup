@@ -1,0 +1,104 @@
+name: Terraform Deployment
+
+on:
+  workflow_dispatch: # Allows manual trigger of the workflow
+    inputs:
+      mode:
+        description: 'Choose operation mode'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+permissions: # Workflow-level permissions
+  contents: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Run Terraform in ${{ github.event.inputs.mode }} mode
+
+    env:
+      ACTIONS_STEP_DEBUG: true
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python and install boto3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install boto3
+        run: pip install boto3
+
+      # Step 3: install AWS CLI in the workflow
+      - name: Install AWS CLI
+        run: sudo apt-get update && sudo apt-get install -y awscli
+
+      # Step 4: Configure AWS credentials using OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::266735837076:role/githubactions_aws_credentials_role
+          aws-region: us-west-2
+
+      - name: Check if Bucket Exists
+        id: bucket-exists
+        run: |
+          bucket_exists=$(aws s3api head-bucket --bucket nimrodterraformstatebucket 2>&1 || true)
+          if [[ "$bucket_exists" == *"Not Found"* || "$bucket_exists" == *"Forbidden"* ]]; then
+            echo "::set-output name=exists::false"
+          else
+            echo "::set-output name=exists::true"
+          fi
+        shell: bash
+
+      # Step 33: Check S3 Bucket Region
+      - name: Get S3 Bucket Region
+        if: steps.bucket-exists.outputs.exists == 'true'
+        id: bucket-region
+        run: |
+          region=$(aws s3api get-bucket-location --bucket nimrodterraformstatebucket --query 'LocationConstraint' --output text)
+          echo "Bucket region: $region"
+          if [[ "$region" == "None" ]]; then
+            region="us-west-2" # Handle AWS returning 'None' for us-west-2
+          fi
+          echo "::set-output name=region::$region"
+        shell: bash
+
+      # Step 5: verify credentials are loaded correctly
+      - name: Test AWS Access
+        run: aws sts get-caller-identity
+
+      # Step 6: Install Terraform
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      # Step 7: Terraform Init
+      - name: Terraform Init
+        run: terraform init -backend-config="region=us-west-2"
+
+      # Step 8: Dry Run (Terraform Plan)
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.mode == 'plan' }}
+        run: terraform plan
+
+      # Step 9: Apply Changes
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.mode == 'apply' }}
+        run: terraform apply -auto-approve
+
+      # Step 10: Destroy Changes
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.mode == 'destroy' }}
+        run: terraform destroy -auto-approve

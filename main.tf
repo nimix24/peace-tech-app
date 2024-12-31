@@ -4,7 +4,7 @@ provider "aws" {
 module "dynamodb" {
   source                      = "./modules/dynamodb"
   greetings_table_name        = "greetings_table"
-  terraform_locks_table_name  = "terraform_locks_table"
+  terraform_locks_table_name  = "terraformlocks_table"
   tags = {
     Environment = "Test"
   }
@@ -15,12 +15,7 @@ resource "aws_instance" "genai_service" {
   instance_type = "t2.micro"
   iam_instance_profile = "access_secret_manager_role"
   key_name = "vockey"
-  vpc_security_group_ids = [
-    coalesce(
-      data.aws_security_group.existing_flask_sg.id,
-      aws_security_group.flask_sg[0].id
-    )
-  ]
+  vpc_security_group_ids = [aws_security_group.flask_sg.id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -44,19 +39,18 @@ resource "aws_instance" "genai_service" {
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [module.dynamodb]
+
+  depends_on = [
+    module.dynamodb
+  ]
+
 }
 
 resource "aws_instance" "sentiment_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
-  vpc_security_group_ids = [
-    coalesce(
-      data.aws_security_group.existing_flask_sg.id,
-      aws_security_group.flask_sg[0].id
-    )
-  ]
+  vpc_security_group_ids = [aws_security_group.flask_sg.id]
 
 
   user_data = <<-EOF
@@ -86,12 +80,7 @@ resource "aws_instance" "db_instance" {
   instance_type = "t2.micro"
   key_name = "vockey"
   iam_instance_profile = "db-instance-dynamo-role"
-  vpc_security_group_ids = [
-    coalesce(
-      data.aws_security_group.existing_db_instance_sg.id,
-      aws_security_group.db_instance_sg[0].id
-    )
-  ]
+  vpc_security_group_ids = [aws_security_group.db_instance_sg.id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -125,12 +114,7 @@ resource "aws_instance" "flask_ec2" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
-  vpc_security_group_ids =[
-    coalesce(
-      data.aws_security_group.existing_flask_sg.id,
-      aws_security_group.flask_sg[0].id
-    )
-  ]
+  vpc_security_group_ids =[aws_security_group.flask_sg.id]
 
   # User data script to initialize EC2 instance and Pass environment variables for Flask to access the SQS queue
   user_data = <<-EOF
@@ -180,16 +164,16 @@ resource "aws_instance" "flask_ec2" {
 }
 
 # Data block to fetch existing security group
-data "aws_security_group" "existing_flask_sg" {
-  filter {
-    name   = "group-name"
-    values = ["flask_sg"]
-  }
-}
+# data "aws_security_group" "existing_flask_sg" {
+#   filter {
+#     name   = "group-name"
+#     values = ["flask_sg"]
+#   }
+# }
 
 # Security group to allow inbound traffic to Flask. Use the existing security group if it exists
 resource "aws_security_group" "flask_sg" {
-  count = length(data.aws_security_group.existing_flask_sg.id) > 0 ? 0 : 1
+  #count = length(data.aws_security_group.existing_flask_sg.id) > 0 ? 0 : 1
   name        = "flask_sg"
   description = "Allow SSH, Flask, and DynamoDB Local"
 
@@ -241,17 +225,16 @@ resource "aws_security_group" "flask_sg" {
 }
 
 # Query for the existing security group
-data "aws_security_group" "existing_db_instance_sg" {
-  filter {
-    name   = "group-name"
-    values = ["db_instance_sg"]
-  }
-}
+# data "aws_security_group" "existing_db_instance_sg" {
+#   filter {
+#     name   = "group-name"
+#     values = ["db_instance_sg"]
+#   }
+# }
 
 # Security group for DB Instance
 resource "aws_security_group" "db_instance_sg" {
-  count = length(data.aws_security_group.existing_db_instance_sg.id) > 0 ? 0 : 1
-
+  #count = length(data.aws_security_group.existing_db_instance_sg.id) > 0 ? 0 : 1
   name        = "db_instance_sg"
   description = "Allow access from data-logic-instance only"
 
@@ -267,11 +250,7 @@ resource "aws_security_group" "db_instance_sg" {
     from_port       = 8000
     to_port         = 8000
     protocol        = "tcp"
-    security_groups = (
-      data.aws_security_group.existing_flask_sg.id != "" ?
-      [data.aws_security_group.existing_flask_sg.id] :
-      (length(aws_security_group.flask_sg) > 0 ? [aws_security_group.flask_sg[0].id] : [])
-)
+    security_groups = [aws_security_group.flask_sg.id]
   }
 
   # Allow SSH for maintenance (optional)
@@ -296,34 +275,35 @@ resource "aws_security_group" "db_instance_sg" {
 
 # ------------------------------------------------------- OUTPUTS ---------------------------------------------------
 
-
-output "greetings_table_name" {
-  value = coalesce(
-    try(module.dynamodb.greetings_table_arn, null),
-    try("greetings_table", null)
-  )
+output "dynamodb_tables" {
+  value = {
+    greetings_table_arn       = module.dynamodb.greetings_table_arn
+    terraform_locks_table_arn = module.dynamodb.terraform_locks_table_arn
+  }
 }
 
-output "terraformlocks_table_name" {
-  value = coalesce(
-    try(module.dynamodb.terraform_locks_table_arn, null),
-    try("terraformlocks_table", null)
-  )
+output "security_group_ids" {
+  value = {
+    flask_sg_id      = aws_security_group.flask_sg.id
+    db_instance_sg_id = aws_security_group.db_instance_sg.id
+  }
+  description = "Security group IDs for Flask and DB instances."
 }
 
-output "flask_sg_id" {
-  value = coalesce(
-    try(data.aws_security_group.existing_flask_sg.id, null),
-    try(aws_security_group.flask_sg[0].id, null)
-  )
-}
 
-output "db_instance_sg_id" {
-  value = coalesce(
-    try(data.aws_security_group.existing_db_instance_sg.id, null),
-    try(aws_security_group.db_instance_sg[0].id, null)
-  )
-}
+# output "flask_sg_id" {
+#   value = coalesce(
+#     try(data.aws_security_group.existing_flask_sg.id, null),
+#     try(aws_security_group.flask_sg[0].id, null)
+#   )
+# }
+#
+# output "db_instance_sg_id" {
+#   value = coalesce(
+#     try(data.aws_security_group.existing_db_instance_sg.id, null),
+#     try(aws_security_group.db_instance_sg[0].id, null)
+#   )
+# }
 
 output "service_ips" {
   value = {

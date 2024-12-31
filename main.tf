@@ -12,7 +12,7 @@ module "dynamodb" {
 }
 
 resource "aws_s3_bucket" "terraform_state_bucket" {
-  bucket = "terraform_state_bucket_266735837076"
+  bucket = "terraform-state-bucket-266735837076"
 
   tags = {
     Environment = "Test"

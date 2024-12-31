@@ -1,33 +1,31 @@
 data "aws_dynamodb_table" "existing_greetings_table" {
-  name = "greetings_table"
+  name = var.greetings_table_name
 }
 
-# DynamoDB Table for storing greetings
 resource "aws_dynamodb_table" "greetings" {
-  count          = length(data.aws_dynamodb_table.existing_greetings_table.id) > 0 ? 0 : 1
-  name           = "greetings_table"
-  billing_mode   = "PAY_PER_REQUEST" # Automatically scales based on usage
-  hash_key       = "id"
+  count        = length(data.aws_dynamodb_table.existing_greetings_table.id) > 0 ? 0 : 1
+  name         = var.greetings_table_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
 
   attribute {
     name = "id"
-    type = "S" # String type for the primary key
+    type = "S"
   }
 
-  tags = {
-    Name = "greetings_table"
-    Environment = "Test"
-  }
+  tags = merge(
+    var.tags,
+    { Name = var.greetings_table_name }
+  )
 }
 
 data "aws_dynamodb_table" "existing_terraformlocks_table" {
-  name = "terraformlocks_table"
+  name = var.terraform_locks_table_name
 }
 
-# DynamoDB Table for State Locking
-resource "aws_dynamodb_table" "terraform_locks" {
+resource "aws_dynamodb_table" "terraform_locks_table" {
   count        = length(data.aws_dynamodb_table.existing_terraformlocks_table.id) > 0 ? 0 : 1
-  name         = "terraformlocks_table"
+  name         = var.terraform_locks_table_name
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
@@ -36,8 +34,8 @@ resource "aws_dynamodb_table" "terraform_locks" {
     type = "S"
   }
 
-  tags = {
-    Name        = "terraformlocks_table"
-    Environment = "Test"
-  }
+  tags = merge(
+    var.tags,
+    { Name = var.terraform_locks_table_name }
+  )
 }

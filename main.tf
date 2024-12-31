@@ -1,4 +1,5 @@
 provider "aws" {
+  region = "us-west-2"
 }
 
 module "dynamodb" {
@@ -7,6 +8,15 @@ module "dynamodb" {
   terraform_locks_table_name  = "terraformlocks_table"
   tags = {
     Environment = "Test"
+  }
+}
+
+resource "aws_s3_bucket" "terraform_state_bucket" {
+  bucket = "terraform_state_bucket_266735837076"
+
+  tags = {
+    Environment = "Test"
+    Owner       = "NimCorporation"
   }
 }
 

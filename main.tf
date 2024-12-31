@@ -168,7 +168,12 @@ resource "aws_instance" "flask_ec2" {
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [module.dynamodb]
+  depends_on = [
+    module.dynamodb,
+    aws_instance.genai_service,
+    aws_instance.db_instance,
+    aws_instance.sentiment_service
+  ]
 
 }
 

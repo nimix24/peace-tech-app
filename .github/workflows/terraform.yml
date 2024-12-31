@@ -48,7 +48,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::266735837076:role/githubactions_aws_credentials_role
-          aws-region: us-east-1
+          aws-region: us-east-2
 
       - name: Check if Bucket Exists
         id: bucket-exists
@@ -69,7 +69,7 @@ jobs:
           region=$(aws s3api get-bucket-location --bucket nimrodterraformstatebucket --query 'LocationConstraint' --output text)
           echo "Bucket region: $region"
           if [[ "$region" == "None" ]]; then
-            region="us-east-1" # Handle AWS returning 'None' for us-east-1
+            region="us-east-2" # Handle AWS returning 'None' for us-east-1
           fi
           echo "::set-output name=region::$region"
         shell: bash
@@ -86,7 +86,7 @@ jobs:
 
       # Step 7: Terraform Init
       - name: Terraform Init
-        run: terraform init -backend-config="region=us-east-1"
+        run: terraform init -backend-config="region=us-east-2"
 
       # Step 8: Dry Run (Terraform Plan)
       - name: Terraform Plan

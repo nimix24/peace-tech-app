@@ -2,10 +2,14 @@ provider "aws" {
   region = "us-west-2"
 }
 
+locals {
+  flask_sg_id = aws_security_group.flask_sg.id
+}
+
 module "dynamodb" {
   source                      = "./modules/dynamodb"
   greetings_table_name        = "greetings_table"
-  terraform_locks_table_name  = module.dynamodb.terraform_locks_table_arn
+  terraform_locks_table_name  = "terraform_locks_table"
   tags = {
     Environment = "Test"
   }
@@ -16,7 +20,7 @@ terraform {
     bucket         = "terraform-state-bucket-266735837076"
     key            = "terraform.tfstate"
     region         = "us-west-2"
-    dynamodb_table = terraform_locks_table_name
+    dynamodb_table = "terraform_locks_table"
     encrypt        = true
   }
 }
@@ -35,7 +39,7 @@ resource "aws_instance" "genai_service" {
   instance_type = "t2.micro"
   iam_instance_profile = "access_secret_manager_role"
   key_name = "vockey"
-  vpc_security_group_ids = [aws_security_group.flask_sg.id]
+  vpc_security_group_ids = [local.flask_sg_id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -70,7 +74,7 @@ resource "aws_instance" "sentiment_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
-  vpc_security_group_ids = [aws_security_group.flask_sg.id]
+  vpc_security_group_ids = [local.flask_sg_id]
 
 
   user_data = <<-EOF
@@ -134,7 +138,7 @@ resource "aws_instance" "flask_ec2" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
-  vpc_security_group_ids =[aws_security_group.flask_sg.id]
+  vpc_security_group_ids =[local.flask_sg_id]
 
   # User data script to initialize EC2 instance and Pass environment variables for Flask to access the SQS queue
   user_data = <<-EOF
@@ -270,7 +274,7 @@ resource "aws_security_group" "db_instance_sg" {
     from_port       = 8000
     to_port         = 8000
     protocol        = "tcp"
-    security_groups = [aws_security_group.flask_sg.id]
+    security_groups = [local.flask_sg_id]
   }
 
   # Allow SSH for maintenance (optional)
@@ -304,7 +308,7 @@ output "dynamodb_tables" {
 
 output "security_group_ids" {
   value = {
-    flask_sg_id      = aws_security_group.flask_sg.id
+    flask_sg_id      = local.flask_sg_id
     db_instance_sg_id = aws_security_group.db_instance_sg.id
   }
   description = "Security group IDs for Flask and DB instances."

@@ -15,15 +15,15 @@ module "dynamodb" {
   }
 }
 
-terraform {
-  backend "s3" {
-    bucket         = "terraform-state-bucket-266735837076"
-    key            = "terraform.tfstate"
-    region         = "us-west-2"
-    dynamodb_table = "terraform_locks_table"
-    encrypt        = true
-  }
-}
+# terraform {
+#   backend "s3" {
+#     bucket         = "terraform-state-bucket-266735837076"
+#     key            = "terraform.tfstate"
+#     region         = "us-west-2"
+#     dynamodb_table = "terraform_locks_table"
+#     encrypt        = true
+#   }
+# }
 
 resource "aws_s3_bucket" "terraform_state_bucket" {
   bucket = "terraform-state-bucket-266735837076"

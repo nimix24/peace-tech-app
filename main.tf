@@ -26,7 +26,6 @@ module "dynamodb" {
 # }
 
 resource "aws_s3_bucket" "terraform_state_bucket" {
-  count = length(data.aws_s3_bucket.existing_bucket.id) == 0 ? 1 : 0
   bucket = "terraform-state-bucket-266735837076"
 
   tags = {

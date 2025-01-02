@@ -46,7 +46,7 @@ resource "aws_instance" "genai_service" {
   instance_type = "t2.micro"
   iam_instance_profile = "access_secret_manager_role"
   key_name = "vockey"
-  vpc_security_group_ids = [local.flask_sg_id]
+  vpc_security_group_ids = local.flask_sg_id
 
   user_data = <<-EOF
               #!/bin/bash
@@ -81,7 +81,7 @@ resource "aws_instance" "sentiment_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
-  vpc_security_group_ids = [local.flask_sg_id]
+  vpc_security_group_ids = local.flask_sg_id
 
 
   user_data = <<-EOF
@@ -281,7 +281,7 @@ resource "aws_security_group" "db_instance_sg" {
     from_port       = 8000
     to_port         = 8000
     protocol        = "tcp"
-    security_groups = [local.flask_sg_id]
+    security_groups = local.flask_sg_id
   }
 
   # Allow SSH for maintenance (optional)
@@ -319,6 +319,13 @@ output "security_group_ids" {
     db_instance_sg_id = local.db_instance_sg
   }
   description = "Security group IDs for Flask and DB instances."
+}
+
+output "debug_flask_sg" {
+  value = {
+    length = length(aws_security_group.flask_sg)
+    id     = length(aws_security_group.flask_sg) > 0 ? aws_security_group.flask_sg[0].id : null
+  }
 }
 
 

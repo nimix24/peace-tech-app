@@ -2,18 +2,17 @@ provider "aws" {
   region = "us-west-2"
 }
 
-# locals {
-#   flask_sg_id = aws_security_group.flask_sg.id
-#   db_instance_sg = aws_security_group.db_instance_sg.id
-# }
-
-
 locals {
-  #flask_sg_id = length(aws_security_group.flask_sg) > 0 ? [aws_security_group.flask_sg[0].id] : []
-  #db_instance_sg = length(aws_security_group.db_instance_sg) > 0 ? [aws_security_group.db_instance_sg[0].id] : []
-  flask_sg_id = try(data.aws_security_group.existing_flask_sg.id, aws_security_group.flask_sg[0].id)
-  db_instance_sg = try(data.aws_security_group.existing_db_instance_sg.id, aws_security_group.db_instance_sg[0].id)
+  flask_sg_id = aws_security_group.flask_sg.id
+  db_instance_sg = aws_security_group.db_instance_sg.id
 }
+
+# locals {
+#   #flask_sg_id = length(aws_security_group.flask_sg) > 0 ? [aws_security_group.flask_sg[0].id] : []
+#   #db_instance_sg = length(aws_security_group.db_instance_sg) > 0 ? [aws_security_group.db_instance_sg[0].id] : []
+#   flask_sg_id = try(data.aws_security_group.existing_flask_sg.id, aws_security_group.flask_sg[0].id)
+#   db_instance_sg = try(data.aws_security_group.existing_db_instance_sg.id, aws_security_group.db_instance_sg[0].id)
+# }
 
 module "dynamodb" {
   source                      = "./modules/dynamodb"
@@ -202,16 +201,16 @@ resource "aws_instance" "flask_ec2" {
 }
 
 #Data block to fetch existing security group
-data "aws_security_group" "existing_flask_sg" {
-  filter {
-    name   = "group-name"
-    values = ["flask_sg"]
-  }
-}
+# data "aws_security_group" "existing_flask_sg" {
+#   filter {
+#     name   = "group-name"
+#     values = ["flask_sg"]
+#   }
+# }
 
 # Security group to allow inbound traffic to Flask. Use the existing security group if it exists
 resource "aws_security_group" "flask_sg" {
-  count = try(data.aws_security_group.existing_flask_sg.id,"") != "" ? 0 : 1
+  #count = try(data.aws_security_group.existing_flask_sg.id,"") != "" ? 0 : 1
   name        = "flask_sg"
   description = "Allow SSH, Flask, and DynamoDB Local"
 
@@ -263,16 +262,16 @@ resource "aws_security_group" "flask_sg" {
 }
 
 # Query for the existing security group
-data "aws_security_group" "existing_db_instance_sg" {
-  filter {
-    name   = "group-name"
-    values = ["db_instance_sg"]
-  }
-}
+# data "aws_security_group" "existing_db_instance_sg" {
+#   filter {
+#     name   = "group-name"
+#     values = ["db_instance_sg"]
+#   }
+# }
 
 # Security group for DB Instance
 resource "aws_security_group" "db_instance_sg" {
-  count = try(data.aws_security_group.existing_db_instance_sg.id,"") != "" ? 0 : 1
+  #count = try(data.aws_security_group.existing_db_instance_sg.id,"") != "" ? 0 : 1
   name        = "db_instance_sg"
   description = "Allow access from data-logic-instance only"
 
@@ -328,12 +327,12 @@ output "security_group_ids" {
   description = "Security group IDs for Flask and DB instances."
 }
 
-output "debug_flask_sg" {
-  value = {
-    length = length(aws_security_group.flask_sg)
-    id     = length(aws_security_group.flask_sg) > 0 ? aws_security_group.flask_sg[0].id : null
-  }
-}
+# output "debug_flask_sg" {
+#   value = {
+#     length = length(aws_security_group.flask_sg)
+#     id     = length(aws_security_group.flask_sg) > 0 ? aws_security_group.flask_sg[0].id : null
+#   }
+# }
 
 
 # output "flask_sg_id" {

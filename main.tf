@@ -4,7 +4,7 @@ provider "aws" {
 
 locals {
   #flask_sg_id = aws_security_group.flask_sg.id
-  flask_sg_id = length(aws_security_group.flask_sg) > 0 ? aws_security_group.flask_sg[0].id : null
+  flask_sg_id = length(aws_security_group.flask_sg) > 0 ? [aws_security_group.flask_sg[0].id] : []
   db_instance_sg = length(aws_security_group.db_instance_sg) > 0 ? [aws_security_group.db_instance_sg[0].id] : []
 }
 

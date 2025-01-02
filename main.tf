@@ -53,7 +53,7 @@ resource "aws_instance" "genai_service" {
   instance_type = "t2.micro"
   iam_instance_profile = "access_secret_manager_role"
   key_name = "vockey"
-  vpc_security_group_ids = local.flask_sg_id
+  vpc_security_group_ids = [local.flask_sg_id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -88,7 +88,7 @@ resource "aws_instance" "sentiment_service" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
-  vpc_security_group_ids = local.flask_sg_id
+  vpc_security_group_ids = [local.flask_sg_id]
 
 
   user_data = <<-EOF
@@ -118,7 +118,7 @@ resource "aws_instance" "db_instance" {
   instance_type = "t2.micro"
   key_name = "vockey"
   iam_instance_profile = "db-instance-dynamo-role"
-  vpc_security_group_ids = local.db_instance_sg
+  vpc_security_group_ids = [local.db_instance_sg]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -152,7 +152,7 @@ resource "aws_instance" "flask_ec2" {
   ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
-  vpc_security_group_ids = local.flask_sg_id
+  vpc_security_group_ids = [local.flask_sg_id]
 
   # User data script to initialize EC2 instance and Pass environment variables for Flask to access the SQS queue
   user_data = <<-EOF

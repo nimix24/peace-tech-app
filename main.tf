@@ -211,7 +211,7 @@ data "aws_security_group" "existing_flask_sg" {
 
 # Security group to allow inbound traffic to Flask. Use the existing security group if it exists
 resource "aws_security_group" "flask_sg" {
-  count = try(data.aws_security_group.existing_flask_sg.id,"") > 0 ? 0 : 1
+  count = try(data.aws_security_group.existing_flask_sg.id,"") != "" ? 0 : 1
   name        = "flask_sg"
   description = "Allow SSH, Flask, and DynamoDB Local"
 
@@ -272,7 +272,7 @@ data "aws_security_group" "existing_db_instance_sg" {
 
 # Security group for DB Instance
 resource "aws_security_group" "db_instance_sg" {
-  count = length(data.aws_security_group.existing_db_instance_sg.id) > 0 ? 0 : 1
+  count = try(data.aws_security_group.existing_db_instance_sg.id,"") != "" ? 0 : 1
   name        = "db_instance_sg"
   description = "Allow access from data-logic-instance only"
 

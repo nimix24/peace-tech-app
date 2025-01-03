@@ -80,14 +80,34 @@ jobs:
         with:
           terraform_version: 1.5.0
 
-      # Step 7: Terraform Init
+      - name: Determine Backend Config
+        id: backend-config
+        run: |
+          if [ "${{ github.ref_name }}" == "master" ]; then
+            echo "::set-output name=state_file::master/terraform.tfstate"
+            echo "::set-output name=lock_table::terraform_locks_master"
+          else
+            echo "::set-output name=state_file::ec2-branch/terraform.tfstate"
+            echo "::set-output name=lock_table::terraform_locks_ec2_branch"
+          fi
+
       - name: Terraform Init
         run: |
           terraform init \
             -backend-config="bucket=terraform-state-bucket-266735837076" \
-            -backend-config="key=terraform.tfstate" \
+            -backend-config="key=${{ steps.backend-config.outputs.state_file }}" \
             -backend-config="region=us-west-2" \
-            -backend-config="dynamodb_table=terraform_locks_table"
+            -backend-config="dynamodb_table=${{ steps.backend-config.outputs.lock_table }}" \
+            -backend-config="encrypt=true" 
+
+      # Step 7: Terraform Init
+#      - name: Terraform Init
+#        run: |
+#          terraform init \
+#            -backend-config="bucket=terraform-state-bucket-266735837076" \
+#            -backend-config="key=terraform.tfstate" \
+#            -backend-config="region=us-west-2" \
+#            -backend-config="dynamodb_table=terraform_locks_table"
 
       # Step 8: Dry Run (Terraform Plan)
       - name: Terraform Plan

@@ -25,7 +25,7 @@ module "dynamodb" {
 
 terraform {
   backend "s3" {
-    bucket         = "terraform-state-bucket-266735837076"
+    bucket         = "terraform-state-bucket-us-west-1-266735837076"
     key            = "terraform.tfstate"
     region         = "us-west-1"
     dynamodb_table = "terraform_locks_table"

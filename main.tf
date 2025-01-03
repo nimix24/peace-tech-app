@@ -36,12 +36,12 @@ module "dynamodb" {
 #   }
 # }
 
-# data "aws_s3_bucket" "existing" {
-#   bucket = "terraform-state-bucket-266735837076"
-# }
+data "aws_s3_bucket" "existing" {
+  bucket = "terraform-state-bucket-us-west-1-266735837076"
+}
 
 resource "aws_s3_bucket" "terraform_state_bucket" {
-  #count = length(data.aws_s3_bucket.existing.id) > 0 ? 0 : 1
+  count = length(data.aws_s3_bucket.existing.id) > 0 ? 0 : 1
   bucket = "terraform-state-bucket-us-west-1-266735837076"
 
   tags = {
@@ -204,16 +204,16 @@ resource "aws_instance" "flask_ec2" {
 }
 
 #Data block to fetch existing security group
-# data "aws_security_group" "existing_flask_sg" {
-#   filter {
-#     name   = "group-name"
-#     values = ["flask_sg"]
-#   }
-# }
+data "aws_security_group" "existing_flask_sg" {
+  filter {
+    name   = "group-name"
+    values = ["flask_sg"]
+  }
+}
 
 # Security group to allow inbound traffic to Flask. Use the existing security group if it exists
 resource "aws_security_group" "flask_sg" {
-  #count = try(data.aws_security_group.existing_flask_sg.id,"") != "" ? 0 : 1
+  count = try(data.aws_security_group.existing_flask_sg.id,"") != "" ? 0 : 1
   name        = "flask_sg"
   description = "Allow SSH, Flask, and DynamoDB Local"
 
@@ -265,16 +265,16 @@ resource "aws_security_group" "flask_sg" {
 }
 
 # Query for the existing security group
-# data "aws_security_group" "existing_db_instance_sg" {
-#   filter {
-#     name   = "group-name"
-#     values = ["db_instance_sg"]
-#   }
-# }
+data "aws_security_group" "existing_db_instance_sg" {
+  filter {
+    name   = "group-name"
+    values = ["db_instance_sg"]
+  }
+}
 
 # Security group for DB Instance
 resource "aws_security_group" "db_instance_sg" {
-  #count = try(data.aws_security_group.existing_db_instance_sg.id,"") != "" ? 0 : 1
+  count = try(data.aws_security_group.existing_db_instance_sg.id,"") != "" ? 0 : 1
   name        = "db_instance_sg"
   description = "Allow access from data-logic-instance only"
 

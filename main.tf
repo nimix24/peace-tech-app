@@ -7,9 +7,7 @@ locals {
   ami_west-1 = "ami-0aa117785d1c1bfe5"
 
   flask_sg_id = aws_security_group.flask_sg.id != null ? aws_security_group.flask_sg.id : "default-security-group-id"
-
-  #flask_sg_id = length(aws_security_group.flask_sg) > 0 ? aws_security_group.flask_sg[0].id : null
-  db_instance_sg = length(aws_security_group.db_instance_sg) > 0 ? aws_security_group.db_instance_sg[0].id : null
+  db_instance_sg = aws_security_group.db_instance_sg.id != null ? aws_security_group.db_instance_sg.id : "default-security-group-id"
 
   #flask_sg_id = aws_security_group.flask_sg.id
   #db_instance_sg = aws_security_group.db_instance_sg.id
@@ -46,7 +44,7 @@ data "aws_s3_bucket" "existing" {
 }
 
 resource "aws_s3_bucket" "terraform_state_bucket" {
-  count = length(data.aws_s3_bucket.existing.id) > 0 ? 0 : 1
+  #count = length(data.aws_s3_bucket.existing.id) > 0 ? 0 : 1
   bucket = "terraform-state-bucket-us-west-1-266735837076"
 
   tags = {

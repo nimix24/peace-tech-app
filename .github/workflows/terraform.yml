@@ -1,4 +1,4 @@
-name: Terraform Deployment
+name: ${{ github.event.inputs.mode }} Deployment
 
 on:
   workflow_dispatch: # Allows manual trigger of the workflow
@@ -22,8 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Run Terraform in ${{ github.event.inputs.mode }} mode
 
-    env:
-      ACTIONS_STEP_DEBUG: true
+    #env:
+     # ACTIONS_STEP_DEBUG: true
 
     steps:
       # Step 1: Checkout the repository

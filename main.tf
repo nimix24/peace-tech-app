@@ -308,14 +308,12 @@ resource "aws_security_group" "db_instance_sg" {
 }
 
 
-
-
 # ------------------------------------------------------- OUTPUTS ---------------------------------------------------
 
 output "dynamodb_tables" {
   value = {
-    greetings_table_arn       = module.dynamodb.greetings_table_arn
-    terraform_locks_table_arn = module.dynamodb.terraform_locks_table_arn
+    greetings_table = "greetings_table"
+    terraform_locks_table = "terraform_locks_table"
   }
 }
 

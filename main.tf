@@ -1,23 +1,15 @@
 provider "aws" {
-  region = "us-west-1"
+  region = "us-west-2"
 }
 
 locals {
-  #ami_west-2 = "ami-066a7fbea5161f451"
-  ami_west-1 = "ami-0aa117785d1c1bfe5"
-
-  flask_sg_id = aws_security_group.flask_sg.id != null ? aws_security_group.flask_sg.id : "default-security-group-id"
-  db_instance_sg = length(aws_security_group.db_instance_sg) > 0 ? aws_security_group.db_instance_sg[0].id : "default-security-group-id"
-
-  #db_instance_sg = aws_security_group.db_instance_sg.id != null ? aws_security_group.db_instance_sg.id : "default-security-group-id"
-
-  #flask_sg_id = aws_security_group.flask_sg.id
-  #db_instance_sg = aws_security_group.db_instance_sg.id
+  flask_sg_id = aws_security_group.flask_sg.id
+  db_instance_sg = aws_security_group.db_instance_sg.id
 }
 
 # locals {
-#   flask_sg_id = length(aws_security_group.flask_sg) > 0 ? [aws_security_group.flask_sg[0].id] : []
-#   db_instance_sg = length(aws_security_group.db_instance_sg) > 0 ? [aws_security_group.db_instance_sg[0].id] : []
+#   #flask_sg_id = length(aws_security_group.flask_sg) > 0 ? [aws_security_group.flask_sg[0].id] : []
+#   #db_instance_sg = length(aws_security_group.db_instance_sg) > 0 ? [aws_security_group.db_instance_sg[0].id] : []
 #   flask_sg_id = try(data.aws_security_group.existing_flask_sg.id, aws_security_group.flask_sg[0].id)
 #   db_instance_sg = try(data.aws_security_group.existing_db_instance_sg.id, aws_security_group.db_instance_sg[0].id)
 # }
@@ -31,23 +23,23 @@ module "dynamodb" {
   }
 }
 
-# terraform {
-#   backend "s3" {
-#     bucket         = "terraform-state-bucket-us-west-1-266735837076"
-#     key            = "terraform.tfstate"
-#     region         = "us-west-1"
-#     dynamodb_table = "terraform_locks_table"
-#     encrypt        = true
-#   }
-# }
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-bucket-266735837076"
+    key            = "terraform.tfstate"
+    region         = "us-west-2"
+    dynamodb_table = "terraform_locks_table"
+    encrypt        = true
+  }
+}
 
 data "aws_s3_bucket" "existing" {
-  bucket = "terraform-state-bucket-us-west-1-266735837076"
+  bucket = "terraform-state-bucket-266735837076"
 }
 
 resource "aws_s3_bucket" "terraform_state_bucket" {
-  #count = length(data.aws_s3_bucket.existing.id) > 0 ? 0 : 1
-  bucket = "terraform-state-bucket-us-west-1-266735837076"
+  count = length(data.aws_s3_bucket.existing.id) > 0 ? 0 : 1
+  bucket = "terraform-state-bucket-266735837076"
 
   tags = {
     Environment = "Test"
@@ -56,7 +48,7 @@ resource "aws_s3_bucket" "terraform_state_bucket" {
 }
 
 resource "aws_instance" "genai_service" {
-  ami           = local.ami_west-1
+  ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   iam_instance_profile = "access_secret_manager_role"
   key_name = "vockey"
@@ -92,7 +84,7 @@ resource "aws_instance" "genai_service" {
 }
 
 resource "aws_instance" "sentiment_service" {
-  ami           = local.ami_west-1
+  ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
   vpc_security_group_ids = [local.flask_sg_id]
@@ -121,7 +113,7 @@ resource "aws_instance" "sentiment_service" {
 
 # EC2 instance for DB access
 resource "aws_instance" "db_instance" {
-  ami = local.ami_west-1
+  ami = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
   iam_instance_profile = "db-instance-dynamo-role"
@@ -156,7 +148,7 @@ resource "aws_instance" "db_instance" {
 
 # EC2 instance to run Flask
 resource "aws_instance" "flask_ec2" {
-  ami           = local.ami_west-1
+  ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
   instance_type = "t2.micro"
   key_name = "vockey"
   vpc_security_group_ids = [local.flask_sg_id]
@@ -270,16 +262,16 @@ resource "aws_security_group" "flask_sg" {
 }
 
 # Query for the existing security group
-data "aws_security_group" "existing_db_instance_sg" {
-  filter {
-    name   = "group-name"
-    values = ["db_instance_sg"]
-  }
-}
+# data "aws_security_group" "existing_db_instance_sg" {
+#   filter {
+#     name   = "group-name"
+#     values = ["db_instance_sg"]
+#   }
+# }
 
 # Security group for DB Instance
 resource "aws_security_group" "db_instance_sg" {
-  count = try(data.aws_security_group.existing_db_instance_sg.id,"") != "" ? 0 : 1
+  #count = try(data.aws_security_group.existing_db_instance_sg.id,"") != "" ? 0 : 1
   name        = "db_instance_sg"
   description = "Allow access from data-logic-instance only"
 
@@ -314,6 +306,8 @@ resource "aws_security_group" "db_instance_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+
 
 
 # ------------------------------------------------------- OUTPUTS ---------------------------------------------------

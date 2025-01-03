@@ -48,7 +48,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::266735837076:role/githubactions_aws_credentials_role
-          aws-region: us-west-1
+          aws-region: us-west-2
 
       - name: Check if Bucket Exists
         id: bucket-exists
@@ -90,7 +90,7 @@ jobs:
           terraform init \
             -backend-config="bucket=terraform-state-bucket-266735837076" \
             -backend-config="key=terraform.tfstate" \
-            -backend-config="region=us-west-1" \
+            -backend-config="region=us-west-2" \
             -backend-config="dynamodb_table=terraform_locks_table"
 
       # Step 8: Dry Run (Terraform Plan)

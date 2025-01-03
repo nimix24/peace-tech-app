@@ -33,12 +33,12 @@ module "dynamodb" {
 #   }
 # }
 
-data "aws_s3_bucket" "existing" {
-  bucket = "terraform-state-bucket-us-west-1-266735837076"
-}
+# data "aws_s3_bucket" "existing" {
+#   bucket = "terraform-state-bucket-266735837076"
+# }
 
 resource "aws_s3_bucket" "terraform_state_bucket" {
-  count = length(data.aws_s3_bucket.existing.id) > 0 ? 0 : 1
+  #count = length(data.aws_s3_bucket.existing.id) > 0 ? 0 : 1
   bucket = "terraform-state-bucket-us-west-1-266735837076"
 
   tags = {

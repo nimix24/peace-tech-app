@@ -34,7 +34,7 @@ module "dynamodb" {
 # }
 
 data "aws_s3_bucket" "existing" {
-  bucket = "terraform-state-bucket-266735837076"
+  bucket = "terraform-state-bucket-us-west-1-266735837076"
 }
 
 resource "aws_s3_bucket" "terraform_state_bucket" {

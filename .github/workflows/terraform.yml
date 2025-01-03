@@ -57,7 +57,8 @@ jobs:
       - name: Check if Bucket Exists
         id: bucket-exists
         run: |
-          bucket_exists=$(aws s3api head-bucket --bucket nimrodterraformstatebucket 2>&1 || true)
+          bucket_exists=$(aws s3api head-bucket --bucket terraform-state-bucket-266735837076 2>&1 || true)
+          echo "Bucket existence check result: $bucket_exists"
           if [[ "$bucket_exists" == *"Not Found"* || "$bucket_exists" == *"Forbidden"* ]]; then
             echo "::set-output name=exists::false"
           else
@@ -65,18 +66,9 @@ jobs:
           fi
         shell: bash
 
-      # Step 33: Check S3 Bucket Region
-      - name: Get S3 Bucket Region
-        if: steps.bucket-exists.outputs.exists == 'true'
-        id: bucket-region
+      - name: Use Bucket Existence Output
         run: |
-          region=$(aws s3api get-bucket-location --bucket nimrodterraformstatebucket --query 'LocationConstraint' --output text)
-          echo "Bucket region: $region"
-          if [[ "$region" == "None" ]]; then
-            region="us-west-2" # Handle AWS returning 'None' for us-west-2
-          fi
-          echo "::set-output name=region::$region"
-        shell: bash
+          echo "Bucket exists: ${{ steps.bucket-exists.outputs.exists }}"
 
       # Step 5: verify credentials are loaded correctly
       - name: Test AWS Access

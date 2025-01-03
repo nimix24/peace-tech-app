@@ -3,6 +3,9 @@ provider "aws" {
 }
 
 locals {
+  #ami_west-2 = "ami-066a7fbea5161f451"
+  ami_west-1 = "ami-0aa117785d1c1bfe5"
+
   flask_sg_id = aws_security_group.flask_sg.id
   db_instance_sg = aws_security_group.db_instance_sg.id
 }
@@ -48,7 +51,7 @@ resource "aws_s3_bucket" "terraform_state_bucket" {
 }
 
 resource "aws_instance" "genai_service" {
-  ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
+  ami           = local.ami_west-1
   instance_type = "t2.micro"
   iam_instance_profile = "access_secret_manager_role"
   key_name = "vockey"
@@ -84,7 +87,7 @@ resource "aws_instance" "genai_service" {
 }
 
 resource "aws_instance" "sentiment_service" {
-  ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
+  ami           = local.ami_west-1
   instance_type = "t2.micro"
   key_name = "vockey"
   vpc_security_group_ids = [local.flask_sg_id]
@@ -113,7 +116,7 @@ resource "aws_instance" "sentiment_service" {
 
 # EC2 instance for DB access
 resource "aws_instance" "db_instance" {
-  ami = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
+  ami = local.ami_west-1
   instance_type = "t2.micro"
   key_name = "vockey"
   iam_instance_profile = "db-instance-dynamo-role"
@@ -148,7 +151,7 @@ resource "aws_instance" "db_instance" {
 
 # EC2 instance to run Flask
 resource "aws_instance" "flask_ec2" {
-  ami           = "ami-066a7fbea5161f451"  # Amazon Linux 2 AMI
+  ami           = local.ami_west-1
   instance_type = "t2.micro"
   key_name = "vockey"
   vpc_security_group_ids = [local.flask_sg_id]

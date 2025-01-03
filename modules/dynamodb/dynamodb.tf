@@ -20,12 +20,12 @@ resource "aws_dynamodb_table" "greetings" {
 
 }
 
-# data "aws_dynamodb_table" "existing_terraformlocks_table_ec2_branch" {
-#   name = var.terraform_locks_table_name_ec2_branch
-# }
+data "aws_dynamodb_table" "existing_terraformlocks_table_ec2_branch" {
+  name = var.terraform_locks_table_name_ec2_branch
+}
 
 resource "aws_dynamodb_table" "terraform_locks_table_ec2_branch" {
-  #count = length(try([data.aws_dynamodb_table.existing_terraformlocks_table_ec2_branch.id], [])) == 0 ? 1 : 0
+  count = length(try([data.aws_dynamodb_table.existing_terraformlocks_table_ec2_branch.id], [])) == 0 ? 1 : 0
   name         = var.terraform_locks_table_name_ec2_branch
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
@@ -41,12 +41,12 @@ resource "aws_dynamodb_table" "terraform_locks_table_ec2_branch" {
   )
 }
 
-# data "aws_dynamodb_table" "existing_terraformlocks_table_master" {
-#   name = var.terraform_locks_table_name_master
-# }
+data "aws_dynamodb_table" "existing_terraformlocks_table_master" {
+  name = var.terraform_locks_table_name_master
+}
 
 resource "aws_dynamodb_table" "terraform_locks_table_master" {
-  #count        = length(data.aws_dynamodb_table.existing_terraformlocks_table_master.id) == 0 ? 1 : 0
+  count        = length(data.aws_dynamodb_table.existing_terraformlocks_table_master.id) == 0 ? 1 : 0
   name         = var.terraform_locks_table_name_master
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"

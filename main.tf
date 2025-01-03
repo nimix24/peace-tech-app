@@ -17,7 +17,8 @@ locals {
 module "dynamodb" {
   source                      = "./modules/dynamodb"
   greetings_table_name        = "greetings_table"
-  terraform_locks_table_name  = "terraform_locks_table"
+  terraform_locks_table_name_master  = "terraform_locks_table_master"
+  terraform_locks_table_name_ec2_branch = "terraform_locks_table_ec2_branch"
   tags = {
     Environment = "Test"
   }
@@ -315,7 +316,7 @@ resource "aws_security_group" "db_instance_sg" {
 output "dynamodb_tables" {
   value = {
     greetings_table = "greetings_table"
-    terraform_locks_table = "terraform_locks_table"
+    terraform_locks_table = "terraform_locks_table__ec2_branch"
   }
 }
 

@@ -6,7 +6,9 @@ locals {
   #ami_west-2 = "ami-066a7fbea5161f451"
   ami_west-1 = "ami-0aa117785d1c1bfe5"
 
-  flask_sg_id = length(aws_security_group.flask_sg) > 0 ? aws_security_group.flask_sg[0].id : null
+  flask_sg_id = aws_security_group.flask_sg.id != null ? aws_security_group.flask_sg.id : "default-security-group-id"
+
+  #flask_sg_id = length(aws_security_group.flask_sg) > 0 ? aws_security_group.flask_sg[0].id : null
   db_instance_sg = length(aws_security_group.db_instance_sg) > 0 ? aws_security_group.db_instance_sg[0].id : null
 
   #flask_sg_id = aws_security_group.flask_sg.id
@@ -207,16 +209,16 @@ resource "aws_instance" "flask_ec2" {
 }
 
 #Data block to fetch existing security group
-data "aws_security_group" "existing_flask_sg" {
-  filter {
-    name   = "group-name"
-    values = ["flask_sg"]
-  }
-}
+# data "aws_security_group" "existing_flask_sg" {
+#   filter {
+#     name   = "group-name"
+#     values = ["flask_sg"]
+#   }
+# }
 
 # Security group to allow inbound traffic to Flask. Use the existing security group if it exists
 resource "aws_security_group" "flask_sg" {
-  count = try(data.aws_security_group.existing_flask_sg.id,"") != "" ? 0 : 1
+  #count = try(data.aws_security_group.existing_flask_sg.id,"") != "" ? 0 : 1
   name        = "flask_sg"
   description = "Allow SSH, Flask, and DynamoDB Local"
 

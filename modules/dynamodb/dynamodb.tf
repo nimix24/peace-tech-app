@@ -45,7 +45,7 @@ resource "aws_dynamodb_table" "terraform_locks_table_ec2_branch" {
 
 data "aws_dynamodb_table" "existing_terraformlocks_table_master" {
   name = var.terraform_locks_table_name_master
-  count = length(try([aws_dynamodb_table.terraform_locks_table_master], []))== 0 ? 0 : 1
+  #count = length(try([aws_dynamodb_table.terraform_locks_table_master], []))== 0 ? 0 : 1
 }
 
 resource "aws_dynamodb_table" "terraform_locks_table_master" {

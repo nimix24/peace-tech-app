@@ -96,7 +96,7 @@ jobs:
         run: |
           terraform init \
             -backend-config="bucket=terraform-state-bucket-266735837076" \
-            -backend-config="key=ec2-branch/terraform.tfstate" \
+            -backend-config="key=testing/terraform.tfstate" \
             -backend-config="region=us-west-2" \
             -backend-config="dynamodb_table=terraform_locks_table_ec2_branch" \
             

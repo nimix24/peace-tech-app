@@ -91,7 +91,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker build -t flask-app .
-          docker tag flask-app:latest ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest
+          docker tag flask-app:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest
           docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest    
 
       # Step 7: Terraform Init

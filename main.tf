@@ -40,6 +40,11 @@ resource "aws_ecs_cluster" "flask_cluster" {
   name = "flask-cluster"
 }
 
+resource "aws_iam_service_linked_role" "ecs_service_role" {
+  aws_service_name = "ecs.amazonaws.com"
+}
+
+
 
 # ------------------------------------------------------- VPC AND SUBNETS ---------------------------------------------------
 

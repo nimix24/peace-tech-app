@@ -44,8 +44,8 @@ jobs:
         run: pip install boto3
 
       # Step 3: install AWS CLI in the workflow
-      - name: Install AWS CLI
-        run: sudo apt-get update && sudo apt-get install -y awscli
+      #- name: Install AWS CLI
+      #  run: sudo apt-get update && sudo apt-get install -y awscli
 
       # Step 4: Configure AWS credentials using OIDC
       - name: Configure AWS credentials

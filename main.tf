@@ -192,6 +192,8 @@ resource "aws_ecs_task_definition" "flask_task" {
 }
 
 resource "aws_ecs_service" "flask_service" {
+  depends_on = [aws_ecs_task_definition.flask_task]
+
   name            = "flask-service"
   cluster         = aws_ecs_cluster.flask_cluster.id
   #task_definition = aws_ecs_task_definition.flask_task.arn

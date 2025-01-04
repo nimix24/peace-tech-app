@@ -26,6 +26,17 @@ resource "aws_s3_bucket" "terraform_state_bucket" {
   }
 }
 
+# ------------------------------------------------ ECR REPOSITORY AND ECS CLUSTER ---------------------------------------------------
+
+resource "aws_ecr_repository" "flask_repo" {
+  name = "flask-app"
+}
+
+resource "aws_ecs_cluster" "flask_cluster" {
+  name = "flask-cluster"
+}
+
+
 # ------------------------------------------------------- VPC AND SUBNETS ---------------------------------------------------
 
 resource "aws_vpc" "my_vpc" {
@@ -115,15 +126,8 @@ resource "aws_security_group" "flask_sg" {
 # ---------------------------------------------------- END SECURITY GROUPS ---------------------------------------------------
 
 
-# ---------------------------------------------------- START ECS RESOURCES ---------------------------------------------------
+# ---------------------------------------------------- START ECS DEFINITIONS ---------------------------------------------------
 
-resource "aws_ecr_repository" "flask_repo" {
-  name = "flask-app"
-}
-
-resource "aws_ecs_cluster" "flask_cluster" {
-  name = "flask-cluster"
-}
 
 resource "aws_iam_role" "ecs_task_execution" {
   name = "ecsTaskExecutionRole"

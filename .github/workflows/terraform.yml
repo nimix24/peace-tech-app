@@ -93,21 +93,53 @@ jobs:
             -backend-config="region=us-west-2" \
             -backend-config="dynamodb_table=${{ steps.backend-config.outputs.lock_table }}" \
 
-      - name: Create ECR Repository if Not Exists
+      - name: Create ECR Repository if Not Exists (flask-app)
         run: |
           aws ecr describe-repositories --repository-names flask-app --region us-west-2 || \
           aws ecr create-repository --repository-name flask-app --region us-west-2
+
+      - name: Create ECR Repository if Not Exists (genai-service)
+        run: |
+          aws ecr describe-repositories --repository-names genai-service --region us-west-2 || \
+          aws ecr create-repository --repository-name genai-service --region us-west-2
+
+      - name: Create ECR Repository if Not Exists (sentiment-service)
+        run: |
+          aws ecr describe-repositories --repository-names sentiment-service --region us-west-2 || \
+          aws ecr create-repository --repository-name sentiment-service --region us-west-2
+
+      - name: Create ECR Repository if Not Exists (dynamodb-service)
+        run: |
+          aws ecr describe-repositories --repository-names dynamodb-service --region us-west-2 || \
+          aws ecr create-repository --repository-name dynamodb-service --region us-west-2
 
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 266735837076.dkr.ecr.us-west-2.amazonaws.com
 
-      - name: Build and Push Docker Image
+      - name: Build and Push Docker Image (flask-app)
         run: |
           docker build -t flask-app .
           docker tag flask-app:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest
           docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest    
-            
+
+      - name: Build and Push Docker Image (genai-repo)
+        run: |
+          docker build -t genai-repo .
+          docker tag genai-repo:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/genai-repo:latest
+          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/genai-repo:latest
+
+      - name: Build and Push Docker Image (sentiment-repo)
+        run: |
+          docker build -t sentiment-repo .
+          docker tag sentiment-repo:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/sentiment-repo:latest
+          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/sentiment-repo:latest      
+
+      - name: Build and Push Docker Image (dynamodb-repo)
+        run: |
+          docker build -t dynamodb-repo .
+          docker tag dynamodb-repo:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/dynamodb-repo:latest
+          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/dynamodb-repo:latest
 
 #       - name: Terraform Init
 #         run: |

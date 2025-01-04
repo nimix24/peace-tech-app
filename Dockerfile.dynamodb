@@ -1,0 +1,18 @@
+# Use an official Python base image
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy your Python application and related files
+COPY dynamodb_service.py /app/dynamodb_service.py
+COPY requirements.txt /app/requirements.txt  # If you have a requirements file for dependencies
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose the port the service will run on
+EXPOSE 5002
+
+# Command to run your Python script
+CMD ["python", "dynamodb_service.py"]

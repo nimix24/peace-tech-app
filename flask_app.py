@@ -8,10 +8,21 @@ app = Flask(__name__)
 # In-memory message storage
 messages = []
 
+
+# Read service URLs from environment variables with default values for flexibility
+GENAI_SERVICE_URL = os.getenv("GENAI_SERVICE_URL", "http://genai-service.local:5001")
+DYNAMODB_SERVICE_URL = os.getenv("DYNAMODB_SERVICE_URL", "http://dynamodb-service.local:5002")
+SENTIMENT_SERVICE_URL = os.getenv("SENTIMENT_SERVICE_URL", "http://sentiment-service.local:5003")
+
+# Service URLs to use load balancer DNS names
+# GENAI_SERVICE_URL = "http://genai-service.local:5001/generate-greeting"
+# DYNAMODB_SERVICE_URL = "http://dynamodb-service.local:5002/save-message"
+# SENTIMENT_SERVICE_URL = "http://sentiment-service.local:5003/analyze-sentiment"
+
 # Service URLs
-GENAI_SERVICE_URL = f"http://{os.getenv('GENAI_SERVICE_IP')}:5001/generate-greeting"
-DYNAMODB_SERVICE_URL = f"http://{os.getenv('DYNAMODB_SERVICE_IP')}:5002/save-message"
-SENTIMENT_SERVICE_URL = f"http://{os.getenv('SENTIMENT_SERVICE_IP')}:5003/analyze-sentiment"
+# GENAI_SERVICE_URL = f"http://{os.getenv('GENAI_SERVICE_IP')}:5001/generate-greeting"
+# DYNAMODB_SERVICE_URL = f"http://{os.getenv('DYNAMODB_SERVICE_IP')}:5002/save-message"
+# SENTIMENT_SERVICE_URL = f"http://{os.getenv('SENTIMENT_SERVICE_IP')}:5003/analyze-sentiment"
 
 # GENAI_SERVICE_URL = f"http://127.0.0.1:5001/generate-greeting"
 # DYNAMODB_SERVICE_URL = f"http://127.0.0.1:5002/save-message"

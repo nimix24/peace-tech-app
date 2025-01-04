@@ -117,10 +117,20 @@ resource "aws_route_table_association" "public_subnet_2_association" {
 
 # --------------------------------------------------- ECR OF ALB ---------------------------------------------------
 
-
-
 data "aws_ecr_repository" "flask_repo" {
   name = "flask-app"
+}
+
+data "aws_ecr_repository" "genai_repo" {
+  name = "genai-repo"
+}
+
+data "aws_ecr_repository" "sentiment_repo" {
+  name = "sentiment-repo"
+}
+
+data "aws_ecr_repository" "dynamodb_repo" {
+  name = "dynamodb-repo"
 }
 
 resource "aws_ecs_cluster" "flask_cluster" {
@@ -230,7 +240,7 @@ resource "aws_security_group" "flask_sg" {
 # ---------------------------------------------------- END SECURITY GROUPS ---------------------------------------------------
 
 
-# ---------------------------------------------------- START ECS DEFINITIONS ---------------------------------------------------
+# ------------------------------------------------- START ECS TASK DEFINITIONS ---------------------------------------------------
 
 
 resource "aws_iam_role" "ecs_task_execution" {
@@ -265,7 +275,6 @@ resource "aws_ecs_task_definition" "flask_task" {
     {
       name      = "flask-app",
       image     = "${data.aws_ecr_repository.flask_repo.repository_url}:latest",
-      #image = "266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest",
       essential = true,
       portMappings = [
         {
@@ -273,23 +282,200 @@ resource "aws_ecs_task_definition" "flask_task" {
           protocol      = "tcp"
         }
       ],
-#       environment = [
-#         {
-#           name  = "GENAI_SERVICE_IP"
-#           value = "${aws_instance.genai_service.public_ip}"
-#         },
-#         {
-#           name  = "DYNAMODB_SERVICE_IP"
-#           value = "${aws_instance.db_instance.public_ip}"
-#         },
-#         {
-#           name  = "SENTIMENT_SERVICE_IP"
-#           value = "${aws_instance.sentiment_service.public_ip}"
-#         }
-#       ]
+      environment = [
+        {
+          name  = "GENAI_SERVICE_URL"
+          value = "http://genai-service.local:5001"
+        },
+        {
+          name  = "DYNAMODB_SERVICE_URL"
+          value = "http://dynamodb-service.local:5002"
+        },
+        {
+          name  = "SENTIMENT_SERVICE_URL"
+          value = "http://sentiment-service.local:5003"
+        }
+      ]
    }
  ])
 }
+
+resource "aws_ecs_task_definition" "genai_task" {
+  family                   = "genai-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
+  container_definitions    = jsonencode([
+    {
+      name      = "genai-service",
+      image     = "${data.aws_ecr_repository.genai_repo.repository_url}:latest", # Replace with your ECR repo
+      essential = true,
+      portMappings = [
+        {
+          containerPort = 5001
+          protocol      = "tcp"
+        }
+      ]
+    }
+  ])
+}
+
+resource "aws_ecs_task_definition" "sentiment_task" {
+  family                   = "sentiment-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
+  container_definitions    = jsonencode([
+    {
+      name      = "sentiment-service",
+      image     = "${data.aws_ecr_repository.sentiment_repo.repository_url}:latest", # Replace with your ECR repo
+      essential = true,
+      portMappings = [
+        {
+          containerPort = 5003
+          protocol      = "tcp"
+        }
+      ]
+    }
+  ])
+}
+
+resource "aws_ecs_task_definition" "dynamodb_task" {
+  family                   = "dynamodb-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
+  container_definitions    = jsonencode([
+    {
+      name      = "dynamodb-service",
+      image     = "${data.aws_ecr_repository.dynamodb_repo.repository_url}:latest", # Replace with your ECR repo
+      essential = true,
+      portMappings = [
+        {
+          containerPort = 5002
+          protocol      = "tcp"
+        }
+      ]
+    }
+  ])
+}
+
+resource "aws_ecs_service" "dynamodb_service" {
+  name            = "dynamodb-service"
+  cluster         = aws_ecs_cluster.flask_cluster.id
+  task_definition = aws_ecs_task_definition.dynamodb_task.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets         = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+    security_groups = [aws_security_group.flask_sg.id]
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.dynamodb_service.arn
+  }
+
+  depends_on = [aws_lb_listener.flask_listener]
+}
+
+resource "aws_service_discovery_service" "dynamodb_service" {
+  name        = "dynamodb-service"
+  namespace_id = aws_service_discovery_private_dns_namespace.my_namespace.id
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.my_namespace.id
+    dns_records {
+      type = "A"
+      ttl  = 60
+    }
+  }
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+
+resource "aws_ecs_service" "sentiment_service" {
+  name            = "sentiment-service"
+  cluster         = aws_ecs_cluster.flask_cluster.id
+  task_definition = aws_ecs_task_definition.sentiment_task.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets         = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+    security_groups = [aws_security_group.flask_sg.id]
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.sentiment_service.arn
+  }
+
+  depends_on = [aws_lb_listener.flask_listener]
+}
+
+resource "aws_service_discovery_service" "sentiment_service" {
+  name        = "sentiment-service"
+  namespace_id = aws_service_discovery_private_dns_namespace.my_namespace.id
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.my_namespace.id
+    dns_records {
+      type = "A"
+      ttl  = 60
+    }
+  }
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+
+resource "aws_ecs_service" "genai_service" {
+  name            = "genai-service"
+  cluster         = aws_ecs_cluster.flask_cluster.id
+  task_definition = aws_ecs_task_definition.genai_task.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets         = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+    security_groups = [aws_security_group.flask_sg.id]
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.genai_service.arn
+  }
+
+  depends_on = [aws_lb_listener.flask_listener]
+}
+
+resource "aws_service_discovery_private_dns_namespace" "my_namespace" {
+  name        = "local"
+  vpc         = aws_vpc.my_vpc.id
+  description = "Private namespace for ECS services"
+}
+
+resource "aws_service_discovery_service" "genai_service" {
+  name        = "genai-service"
+  namespace_id = aws_service_discovery_private_dns_namespace.my_namespace.id
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.my_namespace.id
+    dns_records {
+      type = "A"
+      ttl  = 60
+    }
+  }
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 
 resource "aws_ecs_service" "flask_service" {
   depends_on = [

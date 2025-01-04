@@ -83,6 +83,7 @@ resource "aws_security_group" "flask_sg" {
   #count = try(data.aws_security_group.existing_flask_sg.id,"") != "" ? 0 : 1
   name        = "flask_sg"
   description = "Allow SSH, Flask, and DynamoDB Local"
+  vpc_id      = aws_vpc.my_vpc.id
 
   # Allow HTTP traffic to Flask on port 5000
   ingress {

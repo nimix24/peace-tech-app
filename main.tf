@@ -207,10 +207,10 @@ resource "aws_ecs_service" "flask_service" {
 
 # ------------------------------------------------------- OUTPUTS ---------------------------------------------------
 
-output "flask_service_task_public_ips" {
-  value = aws_ecs_service.flask_service.network_configuration[0].assign_public_ip
-  description = "Public IPs of the Flask service tasks"
-}
+# output "flask_service_task_public_ips" {
+#   value = aws_ecs_service.flask_service.network_configuration[0].assign_public_ip
+#   description = "Public IPs of the Flask service tasks"
+# }
 
 
 

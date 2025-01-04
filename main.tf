@@ -30,7 +30,7 @@ terraform {
     key            = "ec2-branch/terraform.tfstate"
     region         = "us-west-2"
     dynamodb_table = "terraform_locks_table_ec2_branch"
-    encrypt        = true
+    #encrypt        = true
   }
 }
 

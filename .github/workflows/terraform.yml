@@ -1,4 +1,4 @@
-name: Terraform Deployment
+name: Terraform Flask App to ECS
 
 on:
   workflow_dispatch: # Allows manual trigger of the workflow
@@ -58,22 +58,6 @@ jobs:
           role-to-assume: arn:aws:iam::266735837076:role/githubactions_aws_credentials_role
           aws-region: us-west-2
 
-      - name: Check if Bucket Exists
-        id: bucket-exists
-        run: |
-          bucket_exists=$(aws s3api head-bucket --bucket terraform-state-bucket-266735837076 2>&1 || true)
-          echo "Bucket existence check result: $bucket_exists"
-          if [[ "$bucket_exists" == *"Not Found"* || "$bucket_exists" == *"Forbidden"* ]]; then
-            echo "::set-output name=exists::false"
-          else
-            echo "::set-output name=exists::true"
-          fi
-        shell: bash
-
-      - name: Use Bucket Existence Output
-        run: |
-          echo "Bucket exists: ${{ steps.bucket-exists.outputs.exists }}"
-
       # Step 5: verify credentials are loaded correctly
       - name: Test AWS Access
         run: aws sts get-caller-identity
@@ -99,7 +83,16 @@ jobs:
         run: |
           echo "State File: ${{ steps.backend-config.outputs.state_file }}"
           echo "Lock Table: ${{ steps.backend-config.outputs.lock_table }}"
-  
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 266735837076.dkr.ecr.us-west-2.amazonaws.com
+          
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t flask-app .
+          docker tag flask-app:latest ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest
+          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest    
 
       # Step 7: Terraform Init
       - name: Terraform Init

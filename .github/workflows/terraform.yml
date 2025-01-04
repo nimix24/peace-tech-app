@@ -126,20 +126,20 @@ jobs:
       - name: Build and Push Docker Image (genai-repo)
         run: |
           docker build -t genai-service .
-          docker tag genai-repo:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/genai-repo:latest
-          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/genai-repo:latest
+          docker tag genai-service:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/genai-service:latest
+          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/genai-service:latest
 
       - name: Build and Push Docker Image (sentiment-repo)
         run: |
           docker build -t sentiment-service .
-          docker tag sentiment-repo:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/sentiment-repo:latest
-          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/sentiment-repo:latest      
+          docker tag sentiment-service:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/sentiment-service:latest
+          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/sentiment-service:latest      
 
       - name: Build and Push Docker Image (dynamodb-repo)
         run: |
           docker build -t dynamodb-service .
-          docker tag dynamodb-repo:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/dynamodb-repo:latest
-          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/dynamodb-repo:latest
+          docker tag dynamodb-service:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/dynamodb-service:latest
+          docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/dynamodb-service:latest
 
 #       - name: Terraform Init
 #         run: |

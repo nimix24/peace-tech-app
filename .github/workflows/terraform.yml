@@ -84,10 +84,15 @@ jobs:
           echo "State File: ${{ steps.backend-config.outputs.state_file }}"
           echo "Lock Table: ${{ steps.backend-config.outputs.lock_table }}"
 
+      - name: Create ECR Repository if Not Exists
+        run: |
+          aws ecr describe-repositories --repository-names flask-app --region us-west-2 || \
+          aws ecr create-repository --repository-name flask-app --region us-west-2
+
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 266735837076.dkr.ecr.us-west-2.amazonaws.com
-          
+
       - name: Build and Push Docker Image
         run: |
           docker build -t flask-app .

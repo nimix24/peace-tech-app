@@ -32,6 +32,60 @@ resource "aws_s3_bucket" "terraform_state_bucket" {
 #   name = "flask-app"
 # }
 
+# --------------------------------------------------- ALB ---------------------------------------------------
+
+# Create the Load Balancer
+resource "aws_lb" "flask_lb" {
+  name               = "flask-lb"
+  internal           = false  # Set to false to make it publicly accessible
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.flask_sg.id]
+  subnets            = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
+
+  enable_deletion_protection = false
+
+  tags = {
+    Name = "flask-lb"
+  }
+}
+
+# Create Target Group for ECS Service
+resource "aws_lb_target_group" "flask_target_group" {
+  name        = "flask-target-group"
+  port        = 5000
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.my_vpc.id
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "flask-target-group"
+  }
+}
+
+# Create Listener for the ALB
+resource "aws_lb_listener" "flask_listener" {
+  load_balancer_arn = aws_lb.flask_lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.flask_target_group.arn
+  }
+}
+
+# --------------------------------------------------- ECR OF ALB ---------------------------------------------------
+
+
+
 data "aws_ecr_repository" "flask_repo" {
   name = "flask-app"
 }
@@ -84,6 +138,13 @@ resource "aws_security_group" "flask_sg" {
   name        = "flask_sg"
   description = "Allow SSH, Flask, and DynamoDB Local"
   vpc_id      = aws_vpc.my_vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow HTTP from anywhere
+  }
 
   # Allow HTTP traffic to Flask on port 5000
   ingress {
@@ -198,8 +259,11 @@ resource "aws_ecs_task_definition" "flask_task" {
 }
 
 resource "aws_ecs_service" "flask_service" {
-  depends_on = [aws_ecs_task_definition.flask_task]
-
+  depends_on = [
+    aws_ecs_task_definition.flask_task,
+    aws_iam_service_linked_role.ecs_service_role,
+    aws_lb_listener.flask_listener
+  ]
   name            = "flask-service"
   cluster         = aws_ecs_cluster.flask_cluster.id
   task_definition = aws_ecs_task_definition.flask_task.arn
@@ -210,6 +274,13 @@ resource "aws_ecs_service" "flask_service" {
   network_configuration {
     subnets         = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]  # Replace with your subnets
     security_groups = [aws_security_group.flask_sg.id]
+    #assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.flask_target_group.arn
+    container_name   = "flask-app"
+    container_port   = 5000
   }
 }
 

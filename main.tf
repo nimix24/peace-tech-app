@@ -122,15 +122,15 @@ data "aws_ecr_repository" "flask_repo" {
 }
 
 data "aws_ecr_repository" "genai_repo" {
-  name = "genai-repo"
+  name = "genai-service"
 }
 
 data "aws_ecr_repository" "sentiment_repo" {
-  name = "sentiment-repo"
+  name = "sentiment-service"
 }
 
 data "aws_ecr_repository" "dynamodb_repo" {
-  name = "dynamodb-repo"
+  name = "dynamodb-service"
 }
 
 resource "aws_ecs_cluster" "flask_cluster" {

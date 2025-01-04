@@ -82,6 +82,39 @@ resource "aws_lb_listener" "flask_listener" {
   }
 }
 
+resource "aws_internet_gateway" "my_igw" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  tags = {
+    Name = "my-igw"
+  }
+}
+
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.my_igw.id
+  }
+
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public_subnet_1_association" {
+  subnet_id      = aws_subnet.public_subnet_1.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
+resource "aws_route_table_association" "public_subnet_2_association" {
+  subnet_id      = aws_subnet.public_subnet_2.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
+
+
 # --------------------------------------------------- ECR OF ALB ---------------------------------------------------
 
 
@@ -288,16 +321,16 @@ resource "aws_ecs_service" "flask_service" {
 
 # ------------------------------------------------------- OUTPUTS ---------------------------------------------------
 
+output "flask_alb_dns" {
+  value = aws_lb.flask_lb.dns_name
+  description = "DNS name of the Load Balancer"
+}
+
+
 # output "flask_service_task_public_ips" {
 #   value = aws_ecs_service.flask_service.network_configuration[0].assign_public_ip
 #   description = "Public IPs of the Flask service tasks"
 # }
-
-
-
-
-
-
 
 
 

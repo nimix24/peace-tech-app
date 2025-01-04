@@ -194,7 +194,8 @@ resource "aws_ecs_task_definition" "flask_task" {
 resource "aws_ecs_service" "flask_service" {
   name            = "flask-service"
   cluster         = aws_ecs_cluster.flask_cluster.id
-  task_definition = aws_ecs_task_definition.flask_task.arn
+  #task_definition = aws_ecs_task_definition.flask_task.arn
+  task_definition = "${aws_ecs_task_definition.flask_task.family}:${aws_ecs_task_definition.flask_task.revision}"
   desired_count   = 1
   launch_type     = "FARGATE"
 

@@ -164,8 +164,8 @@ resource "aws_ecs_task_definition" "flask_task" {
   container_definitions    = jsonencode([
     {
       name      = "flask-app",
-      #image     = "${data.aws_ecr_repository.flask_repo.repository_url}:latest",
-      image = "266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest",
+      image     = "${data.aws_ecr_repository.flask_repo.repository_url}:latest",
+      #image = "266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest",
       essential = true,
       portMappings = [
         {
@@ -196,8 +196,8 @@ resource "aws_ecs_service" "flask_service" {
 
   name            = "flask-service"
   cluster         = aws_ecs_cluster.flask_cluster.id
-  #task_definition = aws_ecs_task_definition.flask_task.arn
-  task_definition = "${aws_ecs_task_definition.flask_task.family}:${aws_ecs_task_definition.flask_task.revision}"
+  task_definition = aws_ecs_task_definition.flask_task.arn
+  #task_definition = "${aws_ecs_task_definition.flask_task.family}:${aws_ecs_task_definition.flask_task.revision}"
   desired_count   = 1
   launch_type     = "FARGATE"
 

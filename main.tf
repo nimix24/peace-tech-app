@@ -28,9 +28,9 @@ resource "aws_s3_bucket" "terraform_state_bucket" {
 
 # ------------------------------------------------ ECR REPOSITORY AND ECS CLUSTER ---------------------------------------------------
 
-resource "aws_ecr_repository" "flask_repo" {
-  name = "flask-app"
-}
+# resource "aws_ecr_repository" "flask_repo" {
+#   name = "flask-app"
+# }
 
 resource "aws_ecs_cluster" "flask_cluster" {
   name = "flask-cluster"

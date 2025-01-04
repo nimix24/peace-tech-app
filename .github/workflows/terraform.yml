@@ -116,7 +116,7 @@ jobs:
             -backend-config="bucket=terraform-state-bucket-266735837076" \
             -backend-config="key=terraform.tfstate" \
             -backend-config="region=us-west-2" \
-            -backend-config="dynamodb_table=terraform_locks_table"
+            -backend-config="dynamodb_table=terraform_locks_table_ec2_branch"
 
       # Step 8: Dry Run (Terraform Plan)
       - name: Terraform Plan

@@ -45,7 +45,7 @@ def save_message():
         logging.info("data['sentiment'] -->", data['sentiment'])
 
         # Get the current date and time
-        current_datetime = datetime.now().isoformat()  # ISO 8601 format
+        #current_datetime = datetime.now().isoformat()  # ISO 8601 format
         current_datetime = datetime.now().strftime('%B %d, %Y, %H:%M:%S (%Z%z)')
 
         # Save to DynamoDB

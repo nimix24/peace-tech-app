@@ -91,6 +91,12 @@ jobs:
             echo "::set-output name=lock_table::terraform_locks_table_ec2_branch"
           fi
 
+      - name: Print Backend Config
+        run: |
+          echo "State File: ${{ steps.backend-config.outputs.state_file }}"
+          echo "Lock Table: ${{ steps.backend-config.outputs.lock_table }}"
+  
+
       # Step 7: Terraform Init
       - name: Terraform Init
         run: |

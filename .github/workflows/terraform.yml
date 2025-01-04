@@ -130,7 +130,7 @@ jobs:
         if: ${{ github.event.inputs.mode == 'apply' }}
         run: terraform apply -auto-approve
 
-      - name: Validate Confirmation
+      - name: Validate Confirmation Of Destroy
         if: ${{ github.event.inputs.mode == 'destroy' }}
         run: |
           if [ "${{ github.event.inputs.confirm_destroy }}" != "delete" ]; then
@@ -141,7 +141,6 @@ jobs:
           echo "Confirmation provided. Proceeding to destroy step."
 
       # Step 10: Destroy Changes
-      - name: Terraform Destroy after confirmation step
+      - name: Terraform Destroy
         if: ${{ github.event.inputs.mode == 'destroy' }}
         run: terraform destroy -auto-approve
-        

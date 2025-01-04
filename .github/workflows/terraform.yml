@@ -84,6 +84,15 @@ jobs:
           echo "State File: ${{ steps.backend-config.outputs.state_file }}"
           echo "Lock Table: ${{ steps.backend-config.outputs.lock_table }}"
 
+      # Step 7: Terraform Init
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=terraform-state-bucket-266735837076" \
+            -backend-config="key=${{ steps.backend-config.outputs.state_file }}" \
+            -backend-config="region=us-west-2" \
+            -backend-config="dynamodb_table=${{ steps.backend-config.outputs.lock_table }}" \
+
       - name: Create ECR Repository if Not Exists
         run: |
           aws ecr describe-repositories --repository-names flask-app --region us-west-2 || \
@@ -98,15 +107,6 @@ jobs:
           docker build -t flask-app .
           docker tag flask-app:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest
           docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest    
-
-      # Step 7: Terraform Init
-      - name: Terraform Init
-        run: |
-          terraform init \
-            -backend-config="bucket=terraform-state-bucket-266735837076" \
-            -backend-config="key=${{ steps.backend-config.outputs.state_file }}" \
-            -backend-config="region=us-west-2" \
-            -backend-config="dynamodb_table=${{ steps.backend-config.outputs.lock_table }}" \
             
 
 #       - name: Terraform Init

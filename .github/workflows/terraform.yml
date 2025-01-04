@@ -12,6 +12,10 @@ on:
           - plan
           - apply
           - destroy
+      confirm_destroy:
+        description: 'Type "delete" to proceed with destroy'
+        required: false
+        default: ''
 
 permissions: # Workflow-level permissions
   contents: write
@@ -116,15 +120,6 @@ jobs:
 #             -backend-config="dynamodb_table=terraform_locks_table_ec2_branch" \
 #             -backend-config="encrypt=true"
 
-#      - name: Terraform Init
-#        run: |
-#          terraform init \
-#            -backend-config="bucket=terraform-state-bucket-266735837076" \
-#            -backend-config="key=${{ steps.backend-config.outputs.state_file }}" \
-#            -backend-config="region=us-west-2" \
-#            -backend-config="dynamodb_table=${{ steps.backend-config.outputs.lock_table }}" \
-#            -backend-config="encrypt=true"
-
       # Step 8: Dry Run (Terraform Plan)
       - name: Terraform Plan
         if: ${{ github.event.inputs.mode == 'plan' }}
@@ -135,8 +130,18 @@ jobs:
         if: ${{ github.event.inputs.mode == 'apply' }}
         run: terraform apply -auto-approve
 
+      - name: Validate Confirmation
+        if: ${{ github.event.inputs.mode == 'destroy' }}
+        run: |
+          if [ "${{ github.event.inputs.confirm_destroy }}" != "delete" ]; then
+            echo "Destroy confirmation not provided or incorrect. Exiting."
+            exit 1
+          fi
+            
+          echo "Confirmation provided. Proceeding to destroy step."
+
       # Step 10: Destroy Changes
-      - name: Terraform Destroy
+      - name: Terraform Destroy after confirmation step
         if: ${{ github.event.inputs.mode == 'destroy' }}
         run: terraform destroy -auto-approve
         

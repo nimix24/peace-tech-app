@@ -217,22 +217,29 @@ resource "aws_security_group" "flask_sg" {
 
   # Allow HTTP traffic to Flask on port 5000
   ingress {
-    from_port   = 6000
-    to_port     = 6000
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow HTTP from anywhere
+  }
+
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 6001
-    to_port     = 6001
+    from_port   = 5001
+    to_port     = 5001
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port   = 6003
-    to_port     = 6003
+    from_port   = 5003
+    to_port     = 5003
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -278,8 +285,8 @@ resource "aws_security_group" "db_instance_sg" {
 
   # Allow traffic from the data-logic-instance security group
   ingress {
-    from_port   = 6002
-    to_port     = 6002
+    from_port   = 5002
+    to_port     = 5002
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

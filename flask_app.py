@@ -9,9 +9,9 @@ app = Flask(__name__)
 messages = []
 
 # Service URLs
-GENAI_SERVICE_URL = f"http://{os.getenv('GENAI_SERVICE_IP')}:5001/generate-greeting"
-DYNAMODB_SERVICE_URL = f"http://{os.getenv('DYNAMODB_SERVICE_IP')}:5002/save-message"
-SENTIMENT_SERVICE_URL = f"http://{os.getenv('SENTIMENT_SERVICE_IP')}:5003/analyze-sentiment"
+GENAI_SERVICE_URL = f"http://{os.getenv('GENAI_SERVICE_IP')}:6001/generate-greeting"
+DYNAMODB_SERVICE_URL = f"http://{os.getenv('DYNAMODB_SERVICE_IP')}:6002/save-message"
+SENTIMENT_SERVICE_URL = f"http://{os.getenv('SENTIMENT_SERVICE_IP')}:6003/analyze-sentiment"
 
 # GENAI_SERVICE_URL = f"http://127.0.0.1:5001/generate-greeting"
 # DYNAMODB_SERVICE_URL = f"http://127.0.0.1:5002/save-message"

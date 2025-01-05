@@ -47,7 +47,8 @@ def generate_greeting():
 
         # Generate greeting with Gemini AI
         response = model.generate_content(f"Write a greeting in {language} in one sentence")
-        greeting = response.text
+        greeting = "good morning how are you today"
+        #greeting = response.text
         logging.info("greeting/response is: " + greeting)
         #greeting = f"Hello in {language}!"
 

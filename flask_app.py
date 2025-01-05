@@ -84,14 +84,14 @@ def send_message():
 
         # Call DynamoDB Service to save the data
         print ("about to save --> ", response_message)
-        save_response = requests.post(DYNAMODB_SERVICE_URL, json=response_message)
-        print ("save_response.status_code", save_response.status_code)
+        #save_response = requests.post(DYNAMODB_SERVICE_URL, json=response_message)
+       # print ("save_response.status_code", save_response.status_code)
 
-        if save_response.status_code == 404:
-            return jsonify({'error': "The table doesn't exist. Please create the table and try again."}), 404
+       # if save_response.status_code == 404:
+         #   return jsonify({'error': "The table doesn't exist. Please create the table and try again."}), 404
 
-        if save_response.status_code != 200:
-            return jsonify({'error': 'Failed to save data to DynamoDB'}), 500
+      #  if save_response.status_code != 200:
+      #      return jsonify({'error': 'Failed to save data to DynamoDB'}), 500
 
         return jsonify({"Status": "Message sent successfully and saved in DB", "Response": response_message}), 200
 

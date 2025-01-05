@@ -12,10 +12,21 @@ on:
           - plan
           - apply
           - destroy
-      confirm_destroy:
-        description: 'Type "delete" to proceed with destroy'
+      resource_target:
+        description: 'Specify the resource to target (optional, empty field = all resources will be chosen)'
         required: false
+        type: choice
+        options:
+          - aws_instance.genai_service
+          - aws_instance.sentiment_service
+          - aws_instance.db_instance
+          - aws_instance.flask_ec2
+          - ""
         default: ''
+        confirm_destroy:
+          description: 'Type "delete" to proceed with destroy'
+          required: false
+          default: ''
 
 permissions: # Workflow-level permissions
   contents: write
@@ -128,7 +139,12 @@ jobs:
       # Step 9: Apply Changes
       - name: Terraform Apply
         if: ${{ github.event.inputs.mode == 'apply' }}
-        run: terraform apply -auto-approve
+        run: |
+          if [ "${{ github.event.inputs.resource_target }}" == "" ]; then
+            terraform apply -auto-approve
+          else
+            terraform apply -target=${{ github.event.inputs.resource_target }} -auto-approve
+          fi
 
       - name: Validate Confirmation
         if: ${{ github.event.inputs.mode == 'destroy' }}
@@ -141,7 +157,17 @@ jobs:
           echo "Confirmation provided. Proceeding to destroy step."
 
       # Step 10: Destroy Changes
-      - name: Terraform Destroy after confirmation step
+      - name: Terraform Destroy
         if: ${{ github.event.inputs.mode == 'destroy' }}
-        run: terraform destroy -auto-approve
+        run: |
+          if [ "${{ github.event.inputs.resource_target }}" == "" ]; then
+            terraform destroy -auto-approve
+          else
+            terraform destroy -target=${{ github.event.inputs.resource_target }} -auto-approve
+          fi
+
+      - name: Log Resource Target
+        run: |
+          echo "Resource target specified: ${{ github.event.inputs.resource_target }}"
+
         

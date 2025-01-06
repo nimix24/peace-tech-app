@@ -23,7 +23,7 @@ SENTIMENT_SERVICE_URL = f"http://{os.getenv('SENTIMENT_SERVICE_IP')}:5003/analyz
 
 @app.route('/')
 def index():
-    return '<h1>Greetings viewer. You Need To Go To /receive.  </h1>'
+    return '<h1>Welcome viewer. You Need To Go To /receive.  </h1>'
 
 @app.route('/send', methods=['POST'])
 def send_message():

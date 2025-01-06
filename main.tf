@@ -63,7 +63,7 @@ resource "aws_instance" "genai_service" {
               python3 -m pip install --upgrade pip
               python3 -m pip install flask boto3 requests google-generativeai
 
-              git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
+              git clone --branch ec2-branch https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               touch /home/ec2-user/app/genai_service.log
               chmod 666 /home/ec2-user/app/genai_service.log
               echo "Log file created and permissions set at $(date)" >> /home/ec2-user/app/genai_service.log
@@ -102,7 +102,7 @@ resource "aws_instance" "sentiment_service" {
               pip3 show nltk
               ls -l ~/.nltk_data
 
-              git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
+              git clone --branch ec2-branch https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               nohup python3 /home/ec2-user/app/sentiment_service.py > /home/ec2-user/sentiment_service.log 2>&1 &
               EOF
 
@@ -128,7 +128,7 @@ resource "aws_instance" "db_instance" {
               python3 -m pip install --upgrade pip
               python3 -m pip install flask boto3
 
-              git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
+              git clone --branch ec2-branch https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               touch /home/ec2-user/app/dynamo_python.log
               chmod 666 /home/ec2-user/app/dynamo_python.log
               #EOF_APP
@@ -177,7 +177,7 @@ resource "aws_instance" "flask_ec2" {
               source /home/ec2-user/.bashrc
 
               # Clone the Flask app from GitHub
-              git clone https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
+              git clone --branch ec2-branch https://github.com/nimix24/peace-tech-app.git /home/ec2-user/app
               #sudo chmod 666 /home/ec2-user/app.log
               #EOF_APP
 

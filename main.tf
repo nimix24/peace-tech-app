@@ -224,8 +224,8 @@ resource "aws_security_group" "flask_sg" {
   }
 
   ingress {
-    from_port   = 5000
-    to_port     = 5000
+    from_port   = 6000
+    to_port     = 6000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

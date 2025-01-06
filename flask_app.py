@@ -45,30 +45,25 @@ def send_message():
         # })
 
         # Call GenAI Service to generate a greeting
-        # try:
-        #     print("LINE 49 - Calling genai_response")
-        #     genai_response = requests.post(GENAI_SERVICE_URL, json={"language": language})
-        #     print ("genai_response is:" + genai_response.text)
-        #     if genai_response.status_code != 200:
-        #         return jsonify({'error': 'Failed to fetch greeting from GenAI service'}), 500
-        # except Exception as e:
-        #     print("Error occurred calling to genai_response:", str(e))
-        #     return jsonify({'error response from genai_response': str(e)}), 500
+        try:
+            print("LINE 49 - Calling genai_response")
+            genai_response = requests.post(GENAI_SERVICE_URL, json={"language": language})
+            print ("genai_response is:" + genai_response.text)
+            if genai_response.status_code != 200:
+                return jsonify({'error': 'Failed to fetch greeting from GenAI service'}), 500
+        except Exception as e:
+            print("Error occurred calling to genai_response:", str(e))
+            return jsonify({'error response from genai_response': str(e)}), 500
 
-        #genai_data = genai_response.json()
-        #greeting = genai_data.get('greeting', '')
-        #print("greeting is: " +greeting)
-        greeting = {
-            "greeting": "Hello there, I am glad to meet you!",
-            "language": "english"
-        }
+        genai_data = genai_response.json()
+        greeting = genai_data.get('greeting', '')
+        print("greeting is: " +greeting)
 
-        #if not greeting:
-         #   return jsonify({'error': 'No greeting received from GenAI service'}), 500
+        if not greeting:
+            return jsonify({'error': 'No greeting received from GenAI service'}), 500
 
         # Store the greeting and language in the in-memory list
-        #messages.append(genai_data)
-        messages.append(greeting)
+        messages.append(genai_data)
         print ("messages.append(genai_data)--> " ,messages)
 
         # Call Sentiment Analysis Service
@@ -80,17 +75,13 @@ def send_message():
         print ("sentiment is: " , sentiment)
 
         # Prepare the data to save in DynamoDB
-        # response_message = {
-        #     "greeting": greeting,
-        #     "language": language,
-        #     "sentiment": sentiment,
-        # }
         response_message = {
-            "greeting": "hello how are you ",
-            "language": "english",
-            "sentiment": "0.78",
+            "greeting": greeting,
+            "language": language,
+            "sentiment": sentiment,
         }
-        #response_message['id'] = str(hashlib.md5(response_message['greeting'].encode()).hexdigest())
+
+        response_message['id'] = str(hashlib.md5(response_message['greeting'].encode()).hexdigest())
 
         # Call DynamoDB Service to save the data
         print ("about to save --> ", response_message)

@@ -80,10 +80,15 @@ def send_message():
         print ("sentiment is: " , sentiment)
 
         # Prepare the data to save in DynamoDB
+        # response_message = {
+        #     "greeting": greeting,
+        #     "language": language,
+        #     "sentiment": sentiment,
+        # }
         response_message = {
-            "greeting": greeting,
-            "language": language,
-            "sentiment": sentiment,
+            "greeting": "hello how are you ",
+            "language": "english",
+            "sentiment": "0.78",
         }
         #response_message['id'] = str(hashlib.md5(response_message['greeting'].encode()).hexdigest())
 
@@ -98,6 +103,7 @@ def send_message():
         if save_response.status_code != 200:
             return jsonify({'error': 'Failed to save data to DynamoDB'}), 500
 
+       # return jsonify({"Status": "Message sent successfully and saved in DB", "Response": response_message}), 200
         return jsonify({"Status": "Message sent successfully and saved in DB", "Response": response_message}), 200
 
     except Exception as e:

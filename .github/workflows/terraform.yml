@@ -94,48 +94,57 @@ jobs:
             -backend-config="dynamodb_table=${{ steps.backend-config.outputs.lock_table }}" \
 
       - name: Create ECR Repository if Not Exists (flask-app)
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           aws ecr describe-repositories --repository-names flask-app --region us-west-2 || \
           aws ecr create-repository --repository-name flask-app --region us-west-2
 
       - name: Create ECR Repository if Not Exists (genai-service)
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           aws ecr describe-repositories --repository-names genai-service --region us-west-2 || \
           aws ecr create-repository --repository-name genai-service --region us-west-2
 
       - name: Create ECR Repository if Not Exists (sentiment-service)
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           aws ecr describe-repositories --repository-names sentiment-service --region us-west-2 || \
           aws ecr create-repository --repository-name sentiment-service --region us-west-2
 
       - name: Create ECR Repository if Not Exists (dynamodb-service)
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           aws ecr describe-repositories --repository-names dynamodb-service --region us-west-2 || \
           aws ecr create-repository --repository-name dynamodb-service --region us-west-2
 
       - name: Login to Amazon ECR
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 266735837076.dkr.ecr.us-west-2.amazonaws.com
 
       - name: Build and Push Docker Image (flask-app)
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           docker build -t flask-app .
           docker tag flask-app:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest
           docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/flask-app:latest    
 
       - name: Build and Push Docker Image (genai-repo)
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           docker build -t genai-service .
           docker tag genai-service:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/genai-service:latest
           docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/genai-service:latest
 
       - name: Build and Push Docker Image (sentiment-repo)
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           docker build -t sentiment-service .
           docker tag sentiment-service:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/sentiment-service:latest
           docker push 266735837076.dkr.ecr.us-west-2.amazonaws.com/sentiment-service:latest      
 
       - name: Build and Push Docker Image (dynamodb-repo)
+        if: ${{ github.event.inputs.mode != 'destroy' }}
         run: |
           docker build -t dynamodb-service .
           docker tag dynamodb-service:latest 266735837076.dkr.ecr.us-west-2.amazonaws.com/dynamodb-service:latest

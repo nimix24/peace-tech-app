@@ -23,7 +23,7 @@ on:
           - aws_instance.flask_ec2
           - ""
         default: ''
-        confirm_destroy:
+      confirm_destroy:
           description: 'Type "delete" to proceed with destroy'
           required: false
           default: ''
